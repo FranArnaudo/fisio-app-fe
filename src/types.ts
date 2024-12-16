@@ -28,6 +28,11 @@ export type Center = {
   id: string;
 };
 
+export type Healthcare = {
+  id: string;
+  name: string;
+  active: boolean;
+};
 export type Professional = {
   id: string;
   username: string;
@@ -50,3 +55,10 @@ export type Appointment = {
 };
 
 export type AppointmentRange = { start: Date; end: Date };
+
+export type PaginationParams = {
+  page: number;
+  limit: number;
+  search: string;
+  filters: Record<string, any>;
+};
