@@ -11,13 +11,10 @@ type ModalProps = {
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
-
+  const root = document.getElementById("root");
   return createPortal(
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center">
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-[50] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose}></div>
-
-      {/* Modal Card */}
       <div
         className="
         relative
@@ -46,7 +43,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
         <div className="text-sm text-gray-700">{children}</div>
       </div>
     </div>,
-    document.body // Render modal to the root body element
+    root! // Render modal to the root body element
   );
 };
 

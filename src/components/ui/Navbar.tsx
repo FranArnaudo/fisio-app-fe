@@ -16,6 +16,7 @@ const Navbar = () => {
           <NavbarLinkButton to="/" text="Home" />
           <NavbarLinkButton to="/pacientes" text="Pacientes" />
           <NavbarLinkButton to="/turnos" text="Turnos" />
+          <NavbarLinkButton to="/obras-sociales" text="Obras Sociales" />
         </div>
         <div className="flex gap-2">
           <ThemeSwitch />

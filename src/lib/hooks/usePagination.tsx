@@ -79,6 +79,7 @@ const usePagination = (
     setItemsPerPage,
     itemsPerPage,
     totalItems,
+    refetch: fetchPageData,
   };
 };
 
