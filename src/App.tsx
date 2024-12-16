@@ -12,6 +12,7 @@ import { AuthContext } from "./contexts";
 import Appointments from "./screens/Appointments";
 import { jwtDecode } from "jwt-decode";
 import Healthcares from "./screens/Healthcares";
+import Areas from "./screens/Areas";
 
 function App() {
   const { getPayload } = useJwt();
@@ -47,6 +48,7 @@ function App() {
               <Route path="/pacientes" element={<Patients />} />
               <Route path="/turnos" element={<Appointments />} />
               <Route path="/obras-sociales" element={<Healthcares />} />
+              <Route path="/areas" element={<Areas />} />
             </Route>
           </Routes>
         </BrowserRouter>

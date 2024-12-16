@@ -8,8 +8,10 @@ import Checkbox from "../ui/Checkbox";
 import useFetch from "@/lib/hooks/useFetch";
 import { toast } from "react-toastify";
 
-type AddHealthcareModalProps = { refetch: () => void };
-const AddHealthcareModal = ({ refetch }: AddHealthcareModalProps) => {
+type AddAreaModalProp = {
+  refetch: () => void;
+};
+const AddAreaModal = ({ refetch }: AddAreaModalProp) => {
   const [isOpen, setIsOpen] = useState(false);
   const { fetchData } = useFetch();
   const formik = useFormik({
@@ -18,10 +20,10 @@ const AddHealthcareModal = ({ refetch }: AddHealthcareModalProps) => {
       active: false,
     },
     onSubmit: async (values) => {
-      const response = await fetchData("/healthcare", "POST", values);
+      const response = await fetchData("/areas", "POST", values);
 
       if (response) {
-        toast.success("Obra social creada con éxito");
+        toast.success("Área creada con éxito");
         formik.resetForm();
         refetch();
         setIsOpen(false);
@@ -41,14 +43,14 @@ const AddHealthcareModal = ({ refetch }: AddHealthcareModalProps) => {
         variant="primary"
         onClick={() => setIsOpen(true)}
       >
-        <span className="hidden sm:inline">Añadir obra social</span>
+        <span className="hidden sm:inline">Añadir área</span>
       </Button>
-      <Modal isOpen={isOpen} onClose={handleClose} title="Añadir obra social">
+      <Modal isOpen={isOpen} onClose={handleClose} title="Añadir área">
         <form className="flex flex-col gap-2" onSubmit={formik.handleSubmit}>
           <div>
             <label>Nombre</label>
             <TextInput
-              placeholder="Ej. Swiss medical"
+              placeholder="Ej. Kinesiología"
               name="name"
               onChange={formik.handleChange}
             />
@@ -79,4 +81,4 @@ const AddHealthcareModal = ({ refetch }: AddHealthcareModalProps) => {
   );
 };
 
-export default AddHealthcareModal;
+export default AddAreaModal;
