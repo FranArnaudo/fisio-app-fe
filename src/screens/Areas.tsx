@@ -1,13 +1,14 @@
-import AddHealthcareModal from "@/components/healthcares/AddHealthcareModal";
-import HealthcaresTable from "@/components/healthcares/HealthcaresTable";
+import AddAreaModal from "@/components/areas/AddAreaModal";
+import Button from "@/components/ui/Button";
+import GenericTable from "@/components/ui/GenericTable";
 import Pagination from "@/components/ui/Pagination";
 import TextInput from "@/components/ui/TextInput";
 import useFetch from "@/lib/hooks/useFetch";
 import usePagination from "@/lib/hooks/usePagination";
-import { PaginationParams } from "@/types";
+import { Area, PaginationParams } from "@/types";
 
-const Healthcares = () => {
-  const getHealthcaresWithPagination = ({
+const Areas = () => {
+  const getAreasWithPagination = ({
     page,
     limit,
     search,
@@ -18,7 +19,7 @@ const Healthcares = () => {
       .join("&");
 
     return fetchData(
-      `/healthcare?page=${page}&limit=${limit}&name=${search}${
+      `/areas?page=${page}&limit=${limit}&name=${search}${
         filtersQuery ? "&" + filtersQuery : ""
       }`,
       "GET"
@@ -26,7 +27,7 @@ const Healthcares = () => {
   };
   const { fetchData } = useFetch();
   const {
-    data: healthcares,
+    data: areas,
     goToPage,
     totalPages,
     currentPage,
@@ -34,7 +35,7 @@ const Healthcares = () => {
     itemsPerPage,
     applySearch,
     refetch,
-  } = usePagination(getHealthcaresWithPagination);
+  } = usePagination(getAreasWithPagination);
   let timeoutId: number | null = null;
 
   const debouncedApplySearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,28 +46,40 @@ const Healthcares = () => {
     }, 1000);
   };
   const handleToggle = async (id: string) => {
-    await fetchData(`/healthcare/${id}/toggle`, "PATCH");
+    await fetchData(`/areas/${id}/toggle`, "PATCH");
     refetch();
   };
   return (
     <div className="grid grid-cols-12 h-full bg-background text-foreground">
       <div className="col-span-12 md:col-span-8 h-full px-4 py-6 md:px-8 overflow-auto">
         <div className="">
-          <h1 className="text-2xl font-bold mb-6">Obras sociales</h1>
-
+          <h1 className="text-2xl font-bold mb-6">Áreas</h1>
           <div className="flex justify-between gap-4 mb-6">
             <div className="flex gap-4 flex-1">
               <TextInput
-                placeholder="Buscar obra social..."
+                placeholder="Buscar área..."
                 onChange={debouncedApplySearch}
               />
             </div>
-            <AddHealthcareModal refetch={refetch} />
+            <AddAreaModal refetch={refetch} />
           </div>
           <div className="bg-white border border-gray-300 rounded-md shadow-sm overflow-hidden">
-            <HealthcaresTable
-              healthcares={[...healthcares]}
-              handleToggle={handleToggle}
+            <GenericTable
+              items={areas}
+              columns={[
+                { name: "Nombre", key: "name" },
+                { name: "Activo", key: "active" },
+              ]}
+              lastColumn={(item: Area) => (
+                <td className="py-2 px-2 justify-end">
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleToggle(item.id)}
+                  >
+                    {item.active ? "Desactivar" : "Activar"}
+                  </Button>
+                </td>
+              )}
             />
           </div>
           <div>
@@ -93,4 +106,4 @@ const Healthcares = () => {
   );
 };
 
-export default Healthcares;
+export default Areas;

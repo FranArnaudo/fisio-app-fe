@@ -19,6 +19,7 @@ export type Patient = {
 export type Area = {
   id: string;
   name: string;
+  active: boolean;
 };
 
 export type Center = {
