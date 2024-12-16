@@ -1,13 +1,10 @@
 import AddHealthcareModal from "@/components/healthcares/AddHealthcareModal";
 import HealthcaresTable from "@/components/healthcares/HealthcaresTable";
-import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
-import Select from "@/components/ui/Select";
 import TextInput from "@/components/ui/TextInput";
 import useFetch from "@/lib/hooks/useFetch";
 import usePagination from "@/lib/hooks/usePagination";
 import { PaginationParams } from "@/types";
-import { BsSortAlphaDown } from "react-icons/bs";
 
 const Healthcares = () => {
   const getHealthcaresWithPagination = ({
