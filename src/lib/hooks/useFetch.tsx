@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 const useFetch = () => {
   const baseUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:3000";
   const [data, setData] = useState<Record<string, any> | null>(null);
+  const [fetched, setFetched] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -40,6 +41,7 @@ const useFetch = () => {
           toast.error(responseData.message);
         }
       }
+      setFetched(true);
       setData(responseData.data);
       return responseData.data;
     } catch (err: any) {
@@ -50,7 +52,7 @@ const useFetch = () => {
     }
   };
 
-  return { fetchData, loading, error, data };
+  return { fetchData, loading, error, data, fetched };
 };
 
 export default useFetch;

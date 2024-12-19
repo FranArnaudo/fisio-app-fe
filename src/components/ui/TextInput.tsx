@@ -1,9 +1,15 @@
-const TextInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => {
+const TextInput = (
+  props: React.InputHTMLAttributes<HTMLInputElement> & {
+    error?: boolean;
+    helperText?: string;
+  }
+) => {
   return (
-    <input
-      type="text"
-      {...props}
-      className="
+    <>
+      <input
+        type="text"
+        {...props}
+        className={`
       w-full
       rounded-md
       border border-gray-300
@@ -15,8 +21,15 @@ const TextInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => {
       focus:border-primary
       focus:ring-1 focus:ring-primary
       placeholder-gray-400
-      "
-    />
+      ${props.error ? "border-red-500 focus:border-red-700" : ""}
+      `}
+      />
+      {props.helperText && (
+        <p className={`${props.error ? "text-red-500" : ""} text-xs mt-1 pl-1`}>
+          {props.helperText}
+        </p>
+      )}
+    </>
   );
 };
 

@@ -1,9 +1,12 @@
 import { useState } from "react";
 import Modal from "../ui/Modal";
 import Button from "../ui/Button";
+// import useFetch from "@/lib/hooks/useFetch";
 
 const AppointmentContextMenu = () => {
   const [modalToOpen, setModalToOpen] = useState<string | null>(null);
+  // const { fetchData } = useFetch();
+
   return (
     <>
       <Modal
@@ -27,6 +30,9 @@ const AppointmentContextMenu = () => {
       <ul className="rounded-md">
         <li className="hover:bg-primary w-full h-[40px] flex items-center justify-start pl-2 rounded-t-md cursor-pointer">
           <span>Editar</span>
+        </li>
+        <li className="hover:bg-primary w-full h-[40px] flex items-center justify-start pl-2 cursor-pointer">
+          <span>Mover a próxima semana</span>
         </li>
         <li
           className="hover:bg-destructive hover:text-white flex items-center justify-start w-full pl-2 h-[40px] rounded-b-md cursor-pointer"

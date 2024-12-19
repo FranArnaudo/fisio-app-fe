@@ -126,6 +126,11 @@ button {
   }
 } */
 @layer base {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
   :root {
     /* Light Theme */
     --background: #faf9f5; /* Warm ivory backdrop */

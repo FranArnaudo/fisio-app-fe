@@ -5,14 +5,20 @@ type AutocompleteProps = {
   options: Option<string>[];
   onChange: (option: Option<string>) => void;
   placeholder?: string;
+  defaultOptionId?: string;
+  error?: boolean;
+  helperText?: string;
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">;
 
 const Autocomplete: React.FC<AutocompleteProps> = ({
   options,
   onChange,
+  defaultOptionId,
+  error,
+  helperText,
   ...props
 }) => {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -24,7 +30,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
       .toLowerCase();
 
   const filteredOptions = useMemo(() => {
-    if (!inputValue) return [];
+    if (!inputValue) return options.slice(0, 5);
     const normalizedInput = normalizeStr(inputValue);
     return options.filter((opt) => {
       const normalizedLabel = normalizeStr(opt.text);
@@ -34,8 +40,6 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
-    // Open the dropdown if there's input and potential matches
-    setIsOpen(e.target.value !== "");
   };
 
   const handleOptionSelect = (option: Option<string>) => {
@@ -45,6 +49,21 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
     setIsOpen(false);
   };
 
+  useEffect(() => {
+    if (!inputValue && options.length && defaultOptionId) {
+      console.log(
+        "🚀Fran ~ file: Autocomplete.tsx:54 ~ useEffect ~ inputValue:",
+        inputValue,
+        options
+      );
+      const defaultOption = options.find((opt) => opt.id === defaultOptionId);
+      console.log(
+        "🚀Fran ~ file: Autocomplete.tsx:55 ~ useEffect ~ defaultOption:",
+        defaultOption
+      );
+      handleOptionSelect(defaultOption ?? options[0]);
+    }
+  }, [options]);
   // Close the dropdown if user clicks outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -65,7 +84,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
     <div className="relative w-full" ref={containerRef}>
       <input
         type="text"
-        className="
+        className={`
           w-full
           rounded-md
           border border-gray-300
@@ -77,12 +96,18 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
           focus:ring-1 focus:ring-primary
           placeholder-gray-400
           transition-colors
-        "
-        value={inputValue}
+          ${error ? "border-red-500 focus:border-red-700" : ""}
+        `}
+        onFocus={() => setIsOpen(true)}
+        value={inputValue ?? ""}
         onChange={handleInputChange}
         {...props}
       />
-
+      {helperText && (
+        <p className={`${error ? "text-red-500" : ""} text-xs mt-1 pl-1`}>
+          {helperText}
+        </p>
+      )}
       {isOpen && filteredOptions.length > 0 && (
         <ul
           className="

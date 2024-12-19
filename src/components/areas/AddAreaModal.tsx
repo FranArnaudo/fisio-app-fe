@@ -38,7 +38,7 @@ const AddAreaModal = ({ refetch }: AddAreaModalProp) => {
   return (
     <>
       <Button
-        iconStart={<BsPlus size={24} />}
+        iconStart={<BsPlus size={22} />}
         className=""
         variant="primary"
         onClick={() => setIsOpen(true)}

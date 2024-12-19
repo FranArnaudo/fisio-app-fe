@@ -8,7 +8,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <>
-      <nav className="h-14 hidden sm:flex w-full bg-background justify-between px-2 py-2 relative top-0 shadow-xl ">
+      <nav className="h-14 z-10 hidden sm:flex w-full bg-background justify-between px-2 py-2 relative top-0 shadow-xl ">
         <div className="grid place-items-center">
           <span className="font-bold text-xl">FisioApp</span>
         </div>
@@ -18,6 +18,7 @@ const Navbar = () => {
           <NavbarLinkButton to="/turnos" text="Turnos" />
           <NavbarLinkButton to="/obras-sociales" text="Obras Sociales" />
           <NavbarLinkButton to="/areas" text="Áreas" />
+          <NavbarLinkButton to="/servicios" text="Servicios" />
         </div>
         <div className="flex gap-2">
           <ThemeSwitch />

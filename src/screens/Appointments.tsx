@@ -149,26 +149,36 @@ const Appointments = () => {
     document.getElementById("context-menu")?.remove();
     const menu = document.createElement("div");
     const clickedElement = e.target as HTMLElement;
+    console.log(
+      "🚀Fran ~ file: Appointments.tsx:152 ~ handleContextMenu ~ clickedElement:",
+      clickedElement
+    );
     render(
-      <ContextMenu anchorEl={clickedElement}>
+      <ContextMenu anchorEl={clickedElement} contextMenuWidth={230}>
         <AppointmentContextMenu />
       </ContextMenu>,
       menu
     );
   };
-  const handleCloseContextMenu = (e: MouseEvent) => {
-    e.preventDefault();
+
+  const handleStartDrag = () => {
+    setCurrentDate(
+      new Date(dayjs(currentDate).add(7, "day").format("YYYY-MM-DD").toString())
+    );
+  };
+  const handleCloseContextMenu = () => {
     document.getElementById("context-menu")?.remove();
   };
 
   useEffect(() => {
     addEventListener("contextmenu", handleContextMenu);
-    // addEventListener("click", handleCloseContextMenu);
+    addEventListener("click", handleCloseContextMenu);
     return () => {
       removeEventListener("contextmenu", handleContextMenu);
-      // removeEventListener("click", handleCloseContextMenu);
+      removeEventListener("click", handleCloseContextMenu);
     };
   });
+
   return (
     <div className="flex h-full flex-col gap-4  pt-4 px-4 sm:px-10 bg-background text-foreground">
       <AddApointmentModal refetchData={getAppts} />
@@ -199,10 +209,14 @@ const Appointments = () => {
         localizer={dayjsLocalizer(dayjs)}
         events={appointments}
         date={currentDate}
+        onDragStart={handleStartDrag}
+        onDragOver={(e) => console.log(e)}
         onNavigate={(date) => setCurrentDate(date)}
         view={calendarView}
+        onSelectEvent={(e) => console.log(e)}
         step={15}
         timeslots={4}
+        eventPropGetter={(e) => console.log(e)}
         onView={handleViewChange}
         // onSelectSlot={(slotInfo) => console.log(slotInfo)}
         onEventDrop={handleEventDrop}

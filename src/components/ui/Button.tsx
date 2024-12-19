@@ -21,6 +21,7 @@ const Button: React.FC<ButtonProps> = ({
     items-center
     justify-center
     rounded-md
+    h-[40px]
     text-sm
     font-medium
     transition-colors

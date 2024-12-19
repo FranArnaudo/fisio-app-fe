@@ -21,6 +21,7 @@ const AddApointmentModal = ({ refetchData }: AddApointmentModalProps) => {
   const [isAddApptModalOpen, setIsAddApptModalOpen] = useState(false);
   const [professionals, setProfessionals] = useState<Option<string>[]>([]);
   const [patients, setPatients] = useState<Option<string>[]>([]);
+
   const formik = useFormik({
     initialValues: {
       appointmentDatetime: dayjs().format("YYYY-MM-DDTHH:mm"),
@@ -28,6 +29,7 @@ const AddApointmentModal = ({ refetchData }: AddApointmentModalProps) => {
       duration: 60,
       professional: "",
       patient: "",
+      patientDNI: "",
       patientFirstname: "",
       patientLastname: "",
       patientPhone: "",
@@ -37,6 +39,7 @@ const AddApointmentModal = ({ refetchData }: AddApointmentModalProps) => {
       let patient;
       if (isAddingNewPatient) {
         const createdPatient = await fetchData("/patients", "POST", {
+          dni: values.patientDNI,
           firstname: values.patientFirstname,
           lastname: values.patientLastname,
           phone: values.patientPhone,
@@ -156,7 +159,6 @@ const AddApointmentModal = ({ refetchData }: AddApointmentModalProps) => {
                         target: { name: "patient", value: option.value },
                       })
                     }
-                    value={formik.values.patient}
                   />
 
                   <Button onClick={() => setIsAddingNewPatient(true)}>
@@ -166,6 +168,13 @@ const AddApointmentModal = ({ refetchData }: AddApointmentModalProps) => {
               </>
             ) : (
               <div className="flex gap-2  mt-2 flex-col p-2 sm:p-0 ">
+                <label>DNI del paciente</label>
+                <TextInput
+                  name="patientDni"
+                  placeholder="Ej: 12345678"
+                  onChange={formik.handleChange}
+                  value={formik.values.patientDNI}
+                />
                 <label>Nombre del paciente</label>
                 <TextInput
                   name="patientFirstname"

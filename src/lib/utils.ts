@@ -15,3 +15,7 @@ export function getAge(date: Date) {
   }
   return age;
 }
+
+export function getNestedValue(obj: any, key: string): any {
+  return key.split(".").reduce((acc, part) => acc && acc[part], obj);
+}
