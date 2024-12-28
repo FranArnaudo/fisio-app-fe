@@ -17,13 +17,14 @@ import AddApointmentModal from "@/components/appointments/AddApointmentModal";
 import ContextMenu from "@/components/ContextMenu";
 import { render } from "react-dom";
 import AppointmentContextMenu from "@/components/appointments/AppointmentContextMenu";
+import OptionsApptModal from "@/components/appointments/OptionsApptModal";
 dayjs.extend(localizedFormat);
 dayjs.locale("es");
 type EventWithId = Event & { id: string };
 function getCurrentWeekRange(curr?: Date) {
   const today = curr ? dayjs(curr) : dayjs();
   const dayOfWeek = today.day();
-  const sunday = today.subtract(dayOfWeek, "day");
+  const sunday = today.subtract(dayOfWeek, "day").add(7, "day");
   const monday = sunday.subtract(6, "day");
 
   return {
@@ -45,6 +46,7 @@ const Appointments = () => {
   const currentRange = getCurrentWeekRange();
   const [apptRange, setApptRange] = useState(currentRange);
   const [appointments, setAppointments] = useState<EventWithId[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<EventWithId | null>(null);
 
   const handleRangeChange = (
     range: AppointmentRange | Date[],
@@ -149,10 +151,6 @@ const Appointments = () => {
     document.getElementById("context-menu")?.remove();
     const menu = document.createElement("div");
     const clickedElement = e.target as HTMLElement;
-    console.log(
-      "🚀Fran ~ file: Appointments.tsx:152 ~ handleContextMenu ~ clickedElement:",
-      clickedElement
-    );
     render(
       <ContextMenu anchorEl={clickedElement} contextMenuWidth={230}>
         <AppointmentContextMenu />
@@ -162,9 +160,16 @@ const Appointments = () => {
   };
 
   const handleStartDrag = () => {
-    setCurrentDate(
-      new Date(dayjs(currentDate).add(7, "day").format("YYYY-MM-DD").toString())
+    // setCurrentDate(
+    //   new Date(dayjs(currentDate).add(7, "day").format("YYYY-MM-DD").toString())
+    // );
+  };
+  const handleSelectEvent = (e) => {
+    console.log(
+      "🚀Fran ~ file: Appointments.tsx:168 ~ handleSelectEvent ~ e:",
+      e
     );
+    setSelectedEvent(e);
   };
   const handleCloseContextMenu = () => {
     document.getElementById("context-menu")?.remove();
@@ -205,6 +210,11 @@ const Appointments = () => {
           </Button>
         </div>
       </Modal>
+      <OptionsApptModal
+        isOpen={!!selectedEvent}
+        onClose={() => setSelectedEvent(null)}
+        title="Opciones"
+      />
       <DnDCalendar
         localizer={dayjsLocalizer(dayjs)}
         events={appointments}
@@ -213,10 +223,9 @@ const Appointments = () => {
         onDragOver={(e) => console.log(e)}
         onNavigate={(date) => setCurrentDate(date)}
         view={calendarView}
-        onSelectEvent={(e) => console.log(e)}
+        onSelectEvent={handleSelectEvent}
         step={15}
         timeslots={4}
-        eventPropGetter={(e) => console.log(e)}
         onView={handleViewChange}
         // onSelectSlot={(slotInfo) => console.log(slotInfo)}
         onEventDrop={handleEventDrop}

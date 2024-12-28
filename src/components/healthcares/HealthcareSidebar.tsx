@@ -1,9 +1,6 @@
 import useFetch from "@/lib/hooks/useFetch";
 import { useCallback, useEffect, useState } from "react";
 import GenericTable from "../ui/GenericTable";
-import Button from "../ui/Button";
-import { BsPlus } from "react-icons/bs";
-import Modal from "../ui/Modal";
 import AddCoverageModal from "./AddCoverageModal";
 
 type HealthcareSidebarProps = {

@@ -18,6 +18,7 @@ const TextInput = (
       text-sm text-gray-700
       focus:outline-none
       h-[40px]
+      hover:border-primary
       focus:border-primary
       focus:ring-1 focus:ring-primary
       placeholder-gray-400

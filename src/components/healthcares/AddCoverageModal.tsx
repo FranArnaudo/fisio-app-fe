@@ -80,7 +80,7 @@ const AddCoverageModal = ({ refetch, healthcareId }: AddCoverageModalProps) => {
                 type="number"
                 name="amount"
                 onChange={formik.handleChange}
-                value={formik.values.amount}
+                value={formik.values.amount ?? ""}
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-2 pt-2 ">

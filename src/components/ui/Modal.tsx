@@ -2,7 +2,7 @@ import React from "react";
 import { createPortal } from "react-dom";
 import { IoClose } from "react-icons/io5";
 
-type ModalProps = {
+export type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
   title?: string;

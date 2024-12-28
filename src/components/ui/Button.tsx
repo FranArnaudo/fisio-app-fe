@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useMemo } from "react";
 
-type ButtonVariant = "primary" | "secondary";
+type ButtonVariant = "primary" | "secondary" | "danger";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   iconStart?: React.ReactNode;
@@ -50,8 +50,26 @@ const Button: React.FC<ButtonProps> = ({
     disabled:text-gray-400
   `;
 
-  const variantClasses =
-    variant === "primary" ? primaryClasses : secondaryClasses;
+  const dangerClasses = ` 
+    bg-white
+    border border-destructive
+    text-destructive
+    hover:bg-gray-100
+    active:border-destructive
+    disabled:hover:bg-white
+    disabled:border-gray-300
+    disabled:text-gray-400
+  `;
+
+  const variantClass = useMemo(() => {
+    if (variant === "primary") {
+      return primaryClasses;
+    } else if (variant === "secondary") {
+      return secondaryClasses;
+    } else if (variant === "danger") {
+      return dangerClasses;
+    }
+  }, [dangerClasses, primaryClasses, secondaryClasses, variant]);
 
   const hasText = Boolean(children);
 
@@ -59,7 +77,7 @@ const Button: React.FC<ButtonProps> = ({
     <button
       className={`
         ${baseClasses}
-        ${variantClasses}
+        ${variantClass}
         px-3 py-2
         ${className}
       `}
