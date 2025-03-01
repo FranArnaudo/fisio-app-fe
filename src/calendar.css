@@ -1,0 +1,27 @@
+.rbc-event-label{
+  display: none;
+}
+.rbc-event-label-custom {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: white;
+  text-align: left;
+  margin-top: 5px;
+}
+.rbc-allday-cell{
+  display: none;
+}
+.rbc-event, .rbc-background-event {
+  z-index: 2;
+  padding: 0 !important;
+  border: none !important
+}
+
+.rbc-events-container {
+ width: 100% !important;
+}
+.rbc-addons-dnd-resize-ns-anchor{
+  margin: 1px 0px;
+  z-index:5
+}

@@ -19,7 +19,7 @@ function App() {
 
   const [currentUser, setCurrentUser] = useState<Professional | null>(
     JSON.parse(
-      JSON.stringify(jwtDecode(localStorage.getItem("jwt_token") || ""))
+      JSON.stringify(localStorage.getItem("jwt_token") ? jwtDecode(localStorage.getItem("jwt_token") || "") : "")
     ) ?? null
   );
   useEffect(() => {

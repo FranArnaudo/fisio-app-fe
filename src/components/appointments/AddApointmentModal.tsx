@@ -14,13 +14,37 @@ import Autocomplete from "../ui/Autocomplete";
 
 type AddApointmentModalProps = {
   refetchData: () => void;
+  open: boolean;
+  id?: string | null;
+  onClose: () => void;
 };
-const AddApointmentModal = ({ refetchData }: AddApointmentModalProps) => {
+const AddApointmentModal = ({ refetchData, open, id, onClose }: AddApointmentModalProps) => {
+  console.log("🚀 ~ AddApointmentModal ~ id:", id)
   const { fetchData } = useFetch();
   const [isAddingNewPatient, setIsAddingNewPatient] = useState(false);
-  const [isAddApptModalOpen, setIsAddApptModalOpen] = useState(false);
   const [professionals, setProfessionals] = useState<Option<string>[]>([]);
   const [patients, setPatients] = useState<Option<string>[]>([]);
+
+  const getAppt = useCallback(async () => {
+    if (!id) return
+    const appt = await fetchData(`/appointments/${id}`, "GET");
+    formik.setValues({
+      appointmentDatetime: dayjs(appt.appointmentDatetime).format("YYYY-MM-DDTHH:mm"),
+      status: appt.status,
+      duration: appt.duration,
+      professional: appt.professional.id,
+      patient: appt.patient.id,
+      patientFirstname: appt.patient.firstname,
+      patientLastname: appt.patient.lastname,
+      patientPhone: appt.patient.phone,
+      notes: appt.notes,
+    });
+  }, [id, fetchData]);
+  useEffect(() => {
+    if (id) {
+      getAppt()
+    }
+  }, [getAppt])
   const formik = useFormik({
     initialValues: {
       appointmentDatetime: dayjs().format("YYYY-MM-DDTHH:mm"),
@@ -54,7 +78,7 @@ const AddApointmentModal = ({ refetchData }: AddApointmentModalProps) => {
       if (createdAppt) {
         toast.success("Turno creado con éxito");
         refetchData();
-        setIsAddApptModalOpen(false);
+        onClose();
       }
     },
   });
@@ -75,22 +99,10 @@ const AddApointmentModal = ({ refetchData }: AddApointmentModalProps) => {
   }, [getDropdownData]);
   return (
     <>
-      <div className="flex place-content-end">
-        <Button
-          iconStart={<BsPlus size={24} />}
-          onClick={() => {
-            setIsAddApptModalOpen(true);
-            setIsAddingNewPatient(false);
-            formik.resetForm();
-          }}
-        >
-          Agregar turno
-        </Button>
-      </div>
       <Modal
-        isOpen={isAddApptModalOpen}
+        isOpen={open}
         title="Agregar turno"
-        onClose={() => setIsAddApptModalOpen(false)}
+        onClose={onClose}
       >
         <form className="flex flex-col gap-2" onSubmit={formik.handleSubmit}>
           <div>
@@ -140,9 +152,8 @@ const AddApointmentModal = ({ refetchData }: AddApointmentModalProps) => {
             />
           </div>
           <div
-            className={`shadow-xl p-2 rounded-md  ${
-              isAddingNewPatient ? "" : "sm:shadow-none sm:p-0 sm:rounded-none"
-            }`}
+            className={`shadow-xl p-2 rounded-md  ${isAddingNewPatient ? "" : "sm:shadow-none sm:p-0 sm:rounded-none"
+              }`}
           >
             {!isAddingNewPatient ? (
               <>

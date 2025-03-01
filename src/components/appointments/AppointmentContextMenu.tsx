@@ -1,31 +1,29 @@
 import { useState } from "react";
 import Modal from "../ui/Modal";
 import Button from "../ui/Button";
+import AddApointmentModal from "./AddApointmentModal";
 
 const AppointmentContextMenu = () => {
   const [modalToOpen, setModalToOpen] = useState<string | null>(null);
   return (
     <>
+      <AddApointmentModal refetchData={() => { }} open={modalToOpen === 'edit'} onClose={() => setModalToOpen(null)} />
       <Modal
-        isOpen={!!modalToOpen}
+        isOpen={modalToOpen === "delete"}
         title={modalToOpen === "edit" ? "Edit" : "¿Querés eliminar el turno?"}
         onClose={() => setModalToOpen(null)}
       >
-        {modalToOpen === "edit" ? (
-          <h1>edit</h1>
-        ) : (
-          <div className="flex gap-2">
-            <Button className="w-full" variant="secondary">
-              Cancelar
-            </Button>
-            <Button className="w-full" variant="primary">
-              Eliminar turno
-            </Button>
-          </div>
-        )}
-      </Modal>
+        <div className="flex gap-2">
+          <Button className="w-full" variant="secondary">
+            Cancelar
+          </Button>
+          <Button className="w-full" variant="primary">
+            Eliminar turno
+          </Button>
+        </div> </Modal>
+
       <ul className="rounded-md">
-        <li className="hover:bg-primary w-full h-[40px] flex items-center justify-start pl-2 rounded-t-md cursor-pointer">
+        <li className="hover:bg-primary w-full h-[40px] flex items-center justify-start pl-2 rounded-t-md cursor-pointer" onClick={() => setModalToOpen("edit")}>
           <span>Editar</span>
         </li>
         <li

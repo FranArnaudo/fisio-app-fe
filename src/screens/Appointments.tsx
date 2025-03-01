@@ -5,9 +5,10 @@ import withDragAndDrop, {
 } from "react-big-calendar/lib/addons/dragAndDrop";
 import dayjs from "dayjs";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
+import "../calendar.css"
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import useFetch from "@/lib/hooks/useFetch";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import { toast } from "react-toastify";
@@ -17,6 +18,7 @@ import AddApointmentModal from "@/components/appointments/AddApointmentModal";
 import ContextMenu from "@/components/ContextMenu";
 import { render } from "react-dom";
 import AppointmentContextMenu from "@/components/appointments/AppointmentContextMenu";
+import { BsPlus } from "react-icons/bs";
 dayjs.extend(localizedFormat);
 dayjs.locale("es");
 type EventWithId = Event & { id: string };
@@ -37,6 +39,8 @@ const endHour = 20;
 const DnDCalendar = withDragAndDrop(Calendar);
 const Appointments = () => {
   const { fetchData } = useFetch();
+  const [rightClickedItem, setRightClickedItem] = useState<string | null>(null);
+  const [isAddApptModalOpen, setIsAddApptModalOpen] = useState(false);
   const [calendarView, setCalendarView] = useState<View>("week");
   const [currentDate, setCurrentDate] = useState(today);
   const [droppedEvent, setDroppedEvent] =
@@ -45,6 +49,7 @@ const Appointments = () => {
   const currentRange = getCurrentWeekRange();
   const [apptRange, setApptRange] = useState(currentRange);
   const [appointments, setAppointments] = useState<EventWithId[]>([]);
+  console.log("🚀 ~ Appointments ~ appointments:", appointments)
 
   const handleRangeChange = (
     range: AppointmentRange | Date[],
@@ -149,6 +154,8 @@ const Appointments = () => {
     document.getElementById("context-menu")?.remove();
     const menu = document.createElement("div");
     const clickedElement = e.target as HTMLElement;
+    console.log("🚀 ~ handleContextMenu ~ clickedElement.id:", clickedElement)
+    setRightClickedItem(clickedElement.id);
     render(
       <ContextMenu anchorEl={clickedElement}>
         <AppointmentContextMenu />
@@ -163,15 +170,26 @@ const Appointments = () => {
 
   useEffect(() => {
     addEventListener("contextmenu", handleContextMenu);
-    // addEventListener("click", handleCloseContextMenu);
+    addEventListener("click", handleCloseContextMenu);
     return () => {
       removeEventListener("contextmenu", handleContextMenu);
-      // removeEventListener("click", handleCloseContextMenu);
+      removeEventListener("click", handleCloseContextMenu);
     };
   });
+
   return (
     <div className="flex h-full flex-col gap-4  pt-4 px-4 sm:px-10 bg-background text-foreground">
-      <AddApointmentModal refetchData={getAppts} />
+      <AddApointmentModal refetchData={getAppts} open={isAddApptModalOpen} onClose={() => setIsAddApptModalOpen(false)} id={rightClickedItem} />
+      <div className="flex place-content-end">
+        <Button
+          iconStart={<BsPlus size={24} />}
+          onClick={() => {
+            setIsAddApptModalOpen(true);
+          }}
+        >
+          Agregar turno
+        </Button>
+      </div>
       <Modal
         title="Que desea hacer?"
         isOpen={isDropOptionModalOpen}
@@ -203,6 +221,9 @@ const Appointments = () => {
         view={calendarView}
         step={15}
         timeslots={4}
+        components={{
+          event: CustomEvent,
+        }}
         onView={handleViewChange}
         // onSelectSlot={(slotInfo) => console.log(slotInfo)}
         onEventDrop={handleEventDrop}
@@ -233,3 +254,33 @@ const Appointments = () => {
 };
 
 export default Appointments;
+
+const CustomEvent = ({ event }: { event: Event }) => {
+  console.log("🚀 ~ CustomEvent ~ event:", event)
+  return (
+    <div className="custom-event-container">
+      <div id="motherfucker" className="rbc-addons-dnd-resizable">
+        {/* Resize Handle - Top */}
+        {/* <div className="rbc-addons-dnd-resize-ns-anchor">
+          <div className="rbc-addons-dnd-resize-ns-icon" />
+        </div> */}
+
+        {/* Event Label (Time) */}
+        <div className="rbc-event-label-custom
+        ">
+          {dayjs(event.start).format("HH:mm")} – {dayjs(event.end).format("HH:mm")}
+        </div>
+
+        {/* Event Content (Title) */}
+        <div className="rbc-event-content" id={event.resource.id}>
+          {event.title}
+        </div>
+
+        {/* Resize Handle - Bottom */}
+        {/* <div className="rbc-addons-dnd-resize-ns-anchor">
+          <div className="rbc-addons-dnd-resize-ns-icon" />
+        </div> */}
+      </div>
+    </div>
+  );
+};
