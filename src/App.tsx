@@ -16,10 +16,9 @@ import Areas from "./screens/Areas";
 
 function App() {
   const { getPayload } = useJwt();
-
   const [currentUser, setCurrentUser] = useState<Professional | null>(
     JSON.parse(
-      JSON.stringify(localStorage.getItem("jwt_token") ? jwtDecode(localStorage.getItem("jwt_token") || "") : "")
+      JSON.stringify(localStorage.getItem("jwt_token") ? jwtDecode(localStorage.getItem("jwt_token") as string) : "")
     ) ?? null
   );
   useEffect(() => {

@@ -12,10 +12,9 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
   onChange,
   ...props
 }) => {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(options.find(op=>op.id===props.value)?.text);
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
   // Normalize strings to handle diacritics
   const normalizeStr = (str: string) =>
     str
@@ -34,18 +33,15 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
-    // Open the dropdown if there's input and potential matches
     setIsOpen(e.target.value !== "");
   };
 
   const handleOptionSelect = (option: Option<string>) => {
     setInputValue(option.text);
     onChange(option);
-    // Close the dropdown after selection
     setIsOpen(false);
   };
 
-  // Close the dropdown if user clicks outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -65,6 +61,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
     <div className="relative w-full" ref={containerRef}>
       <input
         type="text"
+        key={`autocomplete-${inputValue}`}
         className="
           w-full
           rounded-md
@@ -78,9 +75,9 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
           placeholder-gray-400
           transition-colors
         "
-        value={inputValue}
-        onChange={handleInputChange}
         {...props}
+        value={options.find(op=>op.id===props.value)?.text}
+        onChange={handleInputChange}
       />
 
       {isOpen && filteredOptions.length > 0 && (

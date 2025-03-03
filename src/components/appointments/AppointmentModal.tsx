@@ -6,45 +6,34 @@ import useFetch from "@/lib/hooks/useFetch";
 import { Option } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import Modal from "../ui/Modal";
-import { BsPlus } from "react-icons/bs";
 import Button from "../ui/Button";
 import TextArea from "../ui/TextArea";
 import { toast } from "react-toastify";
 import Autocomplete from "../ui/Autocomplete";
+import { jwtDecode } from "jwt-decode";
 
-type AddApointmentModalProps = {
+type AppointmentModalProps = {
   refetchData: () => void;
   open: boolean;
-  id?: string | null;
+  initialValues?: any ;
   onClose: () => void;
 };
-const AddApointmentModal = ({ refetchData, open, id, onClose }: AddApointmentModalProps) => {
-  console.log("🚀 ~ AddApointmentModal ~ id:", id)
+const AppointmentModal = ({ refetchData, open, initialValues, onClose }: AppointmentModalProps) => {
   const { fetchData } = useFetch();
+  const decodedJWT = jwtDecode(localStorage.getItem("jwt_token") as string);
+  
   const [isAddingNewPatient, setIsAddingNewPatient] = useState(false);
   const [professionals, setProfessionals] = useState<Option<string>[]>([]);
   const [patients, setPatients] = useState<Option<string>[]>([]);
 
-  const getAppt = useCallback(async () => {
-    if (!id) return
-    const appt = await fetchData(`/appointments/${id}`, "GET");
-    formik.setValues({
-      appointmentDatetime: dayjs(appt.appointmentDatetime).format("YYYY-MM-DDTHH:mm"),
-      status: appt.status,
-      duration: appt.duration,
-      professional: appt.professional.id,
-      patient: appt.patient.id,
-      patientFirstname: appt.patient.firstname,
-      patientLastname: appt.patient.lastname,
-      patientPhone: appt.patient.phone,
-      notes: appt.notes,
-    });
-  }, [id, fetchData]);
-  useEffect(() => {
-    if (id) {
-      getAppt()
+  useEffect(()=>{
+    if(Object.keys(initialValues).length){
+      formik.setValues(initialValues)
+    }else{
+      formik.resetForm()
     }
-  }, [getAppt])
+  },[initialValues])
+  
   const formik = useFormik({
     initialValues: {
       appointmentDatetime: dayjs().format("YYYY-MM-DDTHH:mm"),
@@ -56,6 +45,7 @@ const AddApointmentModal = ({ refetchData, open, id, onClose }: AddApointmentMod
       patientLastname: "",
       patientPhone: "",
       notes: "",
+      createdBy:(decodedJWT as any).id
     },
     onSubmit: async (values) => {
       let patient;
@@ -72,6 +62,7 @@ const AddApointmentModal = ({ refetchData, open, id, onClose }: AddApointmentMod
 
       const createdAppt = await fetchData("/appointments", "POST", {
         ...values,
+        createdBy:(decodedJWT as any).id,
         duration: Number(values.duration),
         patient,
       });
@@ -101,7 +92,7 @@ const AddApointmentModal = ({ refetchData, open, id, onClose }: AddApointmentMod
     <>
       <Modal
         isOpen={open}
-        title="Agregar turno"
+        title={Object.keys(initialValues).length  ? "Editar turno" : "Añadir turno"}
         onClose={onClose}
       >
         <form className="flex flex-col gap-2" onSubmit={formik.handleSubmit}>
@@ -231,4 +222,4 @@ const AddApointmentModal = ({ refetchData, open, id, onClose }: AddApointmentMod
   );
 };
 
-export default AddApointmentModal;
+export default AppointmentModal;

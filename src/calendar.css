@@ -1,5 +1,5 @@
 .rbc-event-label{
-  display: none;
+  display: none  !important;
 }
 .rbc-event-label-custom {
   display: block;
@@ -15,7 +15,8 @@
 .rbc-event, .rbc-background-event {
   z-index: 2;
   padding: 0 !important;
-  border: none !important
+  border: none !important;
+  background: none
 }
 
 .rbc-events-container {
@@ -24,4 +25,10 @@
 .rbc-addons-dnd-resize-ns-anchor{
   margin: 1px 0px;
   z-index:5
+}
+
+.rbc-top-container{
+  display:flex;
+  width: 100%;
+  justify-content: space-between;
 }

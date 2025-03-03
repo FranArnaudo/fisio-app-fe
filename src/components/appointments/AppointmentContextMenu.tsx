@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Modal from "../ui/Modal";
 import Button from "../ui/Button";
-import AddApointmentModal from "./AddApointmentModal";
+import AddApointmentModal from "./AppointmentModal";
 
 const AppointmentContextMenu = () => {
   const [modalToOpen, setModalToOpen] = useState<string | null>(null);

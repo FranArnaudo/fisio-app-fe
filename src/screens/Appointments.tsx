@@ -1,5 +1,6 @@
 import { Appointment, AppointmentRange } from "@/types";
 import { Calendar, dayjsLocalizer, Event, View } from "react-big-calendar";
+import { PiArrowArcLeftBold, PiArrowArcRightBold } from "react-icons/pi";
 import withDragAndDrop, {
   EventInteractionArgs,
 } from "react-big-calendar/lib/addons/dragAndDrop";
@@ -8,40 +9,42 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "../calendar.css"
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import useFetch from "@/lib/hooks/useFetch";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import { toast } from "react-toastify";
 import "dayjs/locale/es";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import AddApointmentModal from "@/components/appointments/AddApointmentModal";
-import ContextMenu from "@/components/ContextMenu";
-import { render } from "react-dom";
-import AppointmentContextMenu from "@/components/appointments/AppointmentContextMenu";
 import { BsPlus } from "react-icons/bs";
+import { FaTrash } from "react-icons/fa";
+import AppointmentModal from "@/components/appointments/AppointmentModal";
+import DeleteAppointmentModal from "@/components/appointments/DeleteAppointmentModal";
+import useIsMobile from "@/lib/hooks/useIsMobile";
 dayjs.extend(localizedFormat);
 dayjs.locale("es");
 type EventWithId = Event & { id: string };
 function getCurrentWeekRange(curr?: Date) {
   const today = curr ? dayjs(curr) : dayjs();
-  const dayOfWeek = today.day();
-  const sunday = today.subtract(dayOfWeek, "day");
-  const monday = sunday.subtract(6, "day");
+  const monday = today.day() === 0 ? today.subtract(6, "day") : today.subtract(today.day() - 1, "day");
+  const sunday = monday.add(6, "day");
 
   return {
     start: monday.format("YYYY-MM-DD"),
     end: sunday.format("YYYY-MM-DD"),
   };
 }
+
 const today = new Date();
 const startHour = 8;
 const endHour = 20;
 const DnDCalendar = withDragAndDrop(Calendar);
 const Appointments = () => {
   const { fetchData } = useFetch();
-  const [rightClickedItem, setRightClickedItem] = useState<string | null>(null);
   const [isAddApptModalOpen, setIsAddApptModalOpen] = useState(false);
-  const [calendarView, setCalendarView] = useState<View>("week");
+  const [isDeleteApptModalOpen, setIsDeleteApptModalOpen] = useState(false)
+  const [selectedAppt, setSelectedAppt] = useState('')
+  const isMobile = useIsMobile()
+  const [calendarView, setCalendarView] = useState<View>(isMobile ? "day" : "week");
   const [currentDate, setCurrentDate] = useState(today);
   const [droppedEvent, setDroppedEvent] =
     useState<EventInteractionArgs<EventWithId>>();
@@ -49,8 +52,6 @@ const Appointments = () => {
   const currentRange = getCurrentWeekRange();
   const [apptRange, setApptRange] = useState(currentRange);
   const [appointments, setAppointments] = useState<EventWithId[]>([]);
-  console.log("🚀 ~ Appointments ~ appointments:", appointments)
-
   const handleRangeChange = (
     range: AppointmentRange | Date[],
     view: View = calendarView
@@ -104,6 +105,24 @@ const Appointments = () => {
     }
   };
 
+  const handleMoveToWeekEvent = async (id: string, to: 'prev' | 'next') => {
+    const appt = appointments.find(apt => apt.id === id)
+    const moveTo = to === "prev" ? dayjs(appt?.resource.appointmentDatetime).subtract(1, 'week')
+      : dayjs(appt?.resource.appointmentDatetime).add(1, 'week')
+    await fetchData(`/appointments/${id}`, "PATCH", {
+      appointmentDatetime: moveTo
+    });
+    getAppts();
+    toast.success("Evento movido con éxito");
+  };
+  const handleDeleteEvent = async () => {
+    if (selectedAppt) {
+      await fetchData(`/appointments/${selectedAppt}`, "DELETE");
+      setIsDeleteApptModalOpen(false)
+      getAppts()
+      toast.success("Evento eliminado con exito")
+    }
+  }
   const handleDuplicateEvent = async () => {
     if (droppedEvent) {
       const newAppt: Partial<Appointment> = {
@@ -149,37 +168,37 @@ const Appointments = () => {
     getAppts();
   }, [getAppts]);
 
-  const handleContextMenu = (e: MouseEvent) => {
-    e.preventDefault();
-    document.getElementById("context-menu")?.remove();
-    const menu = document.createElement("div");
-    const clickedElement = e.target as HTMLElement;
-    console.log("🚀 ~ handleContextMenu ~ clickedElement.id:", clickedElement)
-    setRightClickedItem(clickedElement.id);
-    render(
-      <ContextMenu anchorEl={clickedElement}>
-        <AppointmentContextMenu />
-      </ContextMenu>,
-      menu
-    );
-  };
-  const handleCloseContextMenu = (e: MouseEvent) => {
-    e.preventDefault();
-    document.getElementById("context-menu")?.remove();
-  };
-
-  useEffect(() => {
-    addEventListener("contextmenu", handleContextMenu);
-    addEventListener("click", handleCloseContextMenu);
-    return () => {
-      removeEventListener("contextmenu", handleContextMenu);
-      removeEventListener("click", handleCloseContextMenu);
-    };
-  });
-
+  console.log(appointments)
+  const selectedApptInitialValues = useMemo(() => {
+    if (selectedAppt === "") return {}
+    const appt = appointments.find(ap => ap.id === selectedAppt)?.resource
+    return {
+      appointmentDatetime: dayjs(appt.appointmentDatetime).format("YYYY-MM-DDTHH:mm"),
+      status: appt.status,
+      duration: appt.duration,
+      professional: appt.professional.id,
+      patient: appt.patient.id,
+      patientFirstname: "",
+      patientLastname: "",
+      patientPhone: "",
+      notes: appt.notes,
+    }
+  }, [selectedAppt])
   return (
     <div className="flex h-full flex-col gap-4  pt-4 px-4 sm:px-10 bg-background text-foreground">
-      <AddApointmentModal refetchData={getAppts} open={isAddApptModalOpen} onClose={() => setIsAddApptModalOpen(false)} id={rightClickedItem} />
+      <AppointmentModal refetchData={getAppts} open={isAddApptModalOpen} onClose={() => {
+        setSelectedAppt('')
+        setIsAddApptModalOpen(false)
+      }}
+        initialValues={selectedApptInitialValues} />
+      <DeleteAppointmentModal
+        open={isDeleteApptModalOpen}
+        onDelete={handleDeleteEvent}
+        onClose={() => {
+          setSelectedAppt('')
+          setIsDeleteApptModalOpen(false)
+        }}
+      />
       <div className="flex place-content-end">
         <Button
           iconStart={<BsPlus size={24} />}
@@ -222,14 +241,33 @@ const Appointments = () => {
         step={15}
         timeslots={4}
         components={{
-          event: CustomEvent,
+          event: (props) => <CustomEvent {...props}
+            onMoveToWeek={handleMoveToWeekEvent}
+            onDelete={(id: string) => {
+              setSelectedAppt(id)
+              setIsDeleteApptModalOpen(true)
+            }}
+          />,
         }}
         onView={handleViewChange}
-        // onSelectSlot={(slotInfo) => console.log(slotInfo)}
+        {...(isMobile ?
+          {
+            onSelectEvent: (event) => {
+              setIsAddApptModalOpen(true)
+              setSelectedAppt((event as EventWithId).id)
+            }
+          } :
+          {
+            onDoubleClickEvent: (event) => {
+              setIsAddApptModalOpen(true)
+              setSelectedAppt((event as EventWithId).id)
+            }
+          })}
         onEventDrop={handleEventDrop}
         onEventResize={(e) => console.log(e)}
         onRangeChange={handleRangeChange}
         className={"w-full h-full"}
+        eventPropGetter={(props: any) => ({ style: { background: props.resource.professional.colorHex } })}
         min={
           new Date(
             today.getFullYear(),
@@ -255,24 +293,43 @@ const Appointments = () => {
 
 export default Appointments;
 
-const CustomEvent = ({ event }: { event: Event }) => {
-  console.log("🚀 ~ CustomEvent ~ event:", event)
+
+type CustomEventProps = {
+  onMoveToWeek: (id: string, to: 'prev' | 'next') => void;
+  onDelete: (id: string) => void;
+  event: Event
+}
+const CustomEvent = ({ event, onMoveToWeek, onDelete }: CustomEventProps) => {
+  const isMobile = useIsMobile()
+  const backgroundColor = event.resource.professional.colorHex
   return (
-    <div className="custom-event-container">
-      <div id="motherfucker" className="rbc-addons-dnd-resizable">
+    <div className={`custom-event-container px-2 pt-1 `} style={{ background: backgroundColor }}>
+      <div className="rbc-addons-dnd-resizable">
         {/* Resize Handle - Top */}
         {/* <div className="rbc-addons-dnd-resize-ns-anchor">
           <div className="rbc-addons-dnd-resize-ns-icon" />
         </div> */}
 
         {/* Event Label (Time) */}
-        <div className="rbc-event-label-custom
+        <div className="flex justify-between pb-1">
+
+          <div className="rbc-event-label-custom
         ">
-          {dayjs(event.start).format("HH:mm")} – {dayjs(event.end).format("HH:mm")}
+            {dayjs(event.start).format("HH:mm")} – {dayjs(event.end).format("HH:mm")}
+          </div>
+          {!isMobile && <div className="flex justify-end flex-1">
+            <div className="flex justify-end flex-1 pr-2">
+              <PiArrowArcLeftBold className="hover:bg-black/50 rounded" onClick={() => onMoveToWeek((event as EventWithId).id, 'prev')} />
+              <PiArrowArcRightBold className="hover:bg-black/50 rounded" onClick={() => onMoveToWeek((event as EventWithId).id, 'next')} />
+            </div>
+            <FaTrash onClick={() => onDelete((event as EventWithId).id)} className="hover:text-red-500 rounded" />
+          </div>}
+          <div>
+          </div>
         </div>
 
         {/* Event Content (Title) */}
-        <div className="rbc-event-content" id={event.resource.id}>
+        <div className="rbc-event-content" id={event.resource.id} >
           {event.title}
         </div>
 
