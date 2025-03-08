@@ -105,7 +105,7 @@ const Select: React.FC<SelectProps> = ({
           {options.map((option) => (
             <li
               key={option.value}
-              onClick={() => handleSelect(option)}
+              onClick={() => handleSelect(option as Option<string>)}
               className="
                 px-3 py-2
                 text-gray-700

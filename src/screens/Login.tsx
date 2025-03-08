@@ -83,7 +83,7 @@ function Login({ setUser }: LoginProps) {
           </a>
         </div>
 
-        <Button className="w-full" variant="primary" type="submit">
+        <Button className="w-full" variant="primary" type="submit" >
           Iniciar sesión
         </Button>
 

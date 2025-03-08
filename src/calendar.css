@@ -1,34 +1,385 @@
-.rbc-event-label{
-  display: none  !important;
+/* Hide default event labels */
+.rbc-event-label {
+  display: none !important;
 }
+
+/* Custom event label styling */
 .rbc-event-label-custom {
   display: block;
   font-size: 12px;
   font-weight: 400;
   color: white;
   text-align: left;
-  margin-top: 5px;
 }
-.rbc-allday-cell{
+
+/* Hide all-day cell which we're not using */
+.rbc-allday-cell {
   display: none;
 }
+
+/* Reset event styling to customize in our component */
 .rbc-event, .rbc-background-event {
   z-index: 2;
   padding: 0 !important;
   border: none !important;
-  background: none
+  background: none;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s ease-in-out;
 }
 
+/* Subtle hover effect for events */
+.rbc-event:hover {
+  transform: scale(1.02);
+  z-index: 10;
+}
+
+/* Make events container full width */
 .rbc-events-container {
- width: 100% !important;
-}
-.rbc-addons-dnd-resize-ns-anchor{
-  margin: 1px 0px;
-  z-index:5
+  width: 100% !important;
 }
 
-.rbc-top-container{
-  display:flex;
+/* Style resize anchors */
+.rbc-addons-dnd-resize-ns-anchor {
+  margin: 1px 0px;
+  z-index: 5;
+}
+
+/* Responsive button groups */
+.rbc-toolbar {
+  display: none !important; /* Hide the default toolbar */
+}
+
+/* Active view button styling */
+.rbc-active {
+  background-color: #3182ce !important;
+  color: white !important;
+}
+
+/* Time column styling */
+.rbc-time-gutter .rbc-timeslot-group {
+  font-size: 12px;
+}
+
+.rbc-timeslot-group {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Header styling */
+.rbc-header {
+  padding: 8px 4px;
+  font-weight: 600;
+  font-size: 14px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+/* Today highlighting */
+.rbc-day-slot.rbc-today {
+  background-color: rgba(66, 153, 225, 0.05);
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .rbc-header {
+    padding: 4px 2px;
+    font-size: 12px;
+  }
+  
+  .rbc-event-content {
+    font-size: 12px;
+  }
+  
+  /* Make time slots taller on mobile for easier tapping */
+  .rbc-timeslot-group {
+    min-height: 60px;
+  }
+}
+
+/* Cancelled appointments styling */
+.rbc-event.cancelled {
+  opacity: 0.6;
+}
+
+/* Add animation for drag and drop */
+.rbc-addons-dnd-dragging {
+  opacity: 0.7 !important;
+}
+
+/* Custom event container */
+.custom-event-container {
+  height: 100%;
   width: 100%;
-  justify-content: space-between;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* More space for event content */
+.rbc-event-content {
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Style for month view events */
+.rbc-month-view .rbc-event {
+  padding: 2px 4px !important;
+}
+
+/* Improve contrast on time grid */
+.rbc-time-content {
+  border-top: 2px solid #e2e8f0;
+}
+
+/* Make current time indicator more visible */
+.rbc-current-time-indicator {
+  height: 2px;
+  background-color: #e53e3e;
+  opacity: 0.8;
+}
+
+/* ======= STYLES FOR HORIZONTAL SCROLLING ======= */
+
+/* Set up a scrollable container for both header and content */
+.rbc-time-view {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent double scrollbars */
+}
+
+/* Make time header scrollable and sync with content */
+.rbc-time-header {
+  overflow-x: scroll;
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
+}
+
+/* Hide scrollbar for Chrome/Safari */
+.rbc-time-header::-webkit-scrollbar {
+  display: none;
+}
+
+/* Enable horizontal scrolling for the content */
+.rbc-time-view .rbc-time-content {
+  overflow-x: scroll;
+  scrollbar-width: thin;
+}
+
+/* Set minimum width for day columns to make them wider */
+.rbc-time-view .rbc-day-slot {
+  min-width: 200px; /* Default value - will be overridden by inline styles */
+}
+
+/* Ensure header columns align with content columns */
+.rbc-time-header-content .rbc-header {
+  min-width: 200px; /* Default value - will be overridden by inline styles */
+}
+
+/* Make sure the time gutter doesn't scroll horizontally */
+.rbc-time-view .rbc-time-gutter {
+  position: sticky;
+  left: 0;
+  background: white;
+  z-index: 3;
+  border-right: 1px solid #ddd;
+}
+
+/* Style the scrollbar */
+.rbc-time-content::-webkit-scrollbar {
+  height: 8px;
+}
+
+.rbc-time-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.rbc-time-content::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 4px;
+}
+
+.rbc-time-content::-webkit-scrollbar-thumb:hover {
+  background: #bbb;
+}
+
+/* Keep the time gutter header fixed when scrolling horizontally */
+.rbc-time-header-gutter {
+  position: sticky;
+  left: 0;
+  background: white;
+  z-index: 4;
+}
+
+/* Improved custom navigation controls */
+.calendar-controls {
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+}
+
+.date-navigation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.date-navigation-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.date-navigation-button:hover {
+  background-color: #f3f4f6;
+}
+
+.view-selector {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.view-button {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid #e5e7eb;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-button:hover {
+  background-color: #f3f4f6;
+}
+
+.view-button.active {
+  background-color: #3182ce;
+  color: white;
+  border-color: #3182ce;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.zoom-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 0.25rem;
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.zoom-button:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
+
+.zoom-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Add animation for view transitions */
+.rbc-calendar {
+  transition: height 0.3s ease;
+}
+
+/* Custom styling for new navigation controls */
+.calendar-nav-container {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Improve mobile view */
+@media (max-width: 640px) {
+  .calendar-nav-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .view-button {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+  
+  .date-navigation-button {
+    padding: 4px 8px;
+  }
+}
+
+/* Add this to your calendar.css file */
+
+/* Bottom right zoom controls */
+.zoom-controls-corner {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  padding: 6px 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  z-index: 1000;
+  border: 1px solid #e5e7eb;
+}
+
+/* Adjustments for small screens */
+@media (max-width: 640px) {
+  .zoom-controls-corner {
+    bottom: 10px;
+    right: 10px;
+    padding: 4px 8px;
+  }
+}
+
+/* Zoom buttons styling */
+.zoom-button-corner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.zoom-button-corner:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
+
+.zoom-button-corner:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Container for calendar to support relative positioning */
+.calendar-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
