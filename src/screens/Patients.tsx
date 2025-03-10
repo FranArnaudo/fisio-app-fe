@@ -7,13 +7,14 @@ import TextInput from "@/components/ui/TextInput";
 import useFetch from "@/lib/hooks/useFetch";
 import useIsMobile from "@/lib/hooks/useIsMobile";
 import usePagination from "@/lib/hooks/usePagination";
-import { Appointment, PaginationParams } from "@/types";
+import { Appointment, Order, PaginationParams } from "@/types";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { BsSortAlphaDown } from "react-icons/bs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { AppointmentCardsGrid } from "@/components/appointments/AppointmentShortCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { OrderCardsGrid } from "@/components/orders/OrdersShortCard";
 dayjs.extend(localizedFormat);
 
 
@@ -47,18 +48,19 @@ const Patients = () => {
   let timeoutId: number | null = null;
   const isMobile = useIsMobile()
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null)
-  const [patientAppointments, setPatientAppointments] = useState<Appointment[]>([])
+  const [patientApptsAndOrders, setPatientApptsAndOrders] = useState<{appts:Appointment[], orders:Order[]}>({appts:[],orders:[]})
 
-  const getPatientsAppointment = useCallback(async () => {
+  const getPatientsApptAndOrders = useCallback(async () => {
     const appts = await fetchData<Appointment[]>(`/appointments/patient/${selectedPatient}`)
-    setPatientAppointments(appts)
+    const orders = await fetchData<Order[]>(`/orders/patient/${selectedPatient}`)
+    setPatientApptsAndOrders({appts,orders})
   }, [selectedPatient])
 
   useEffect(() => {
     if (selectedPatient) {
-      getPatientsAppointment()
+      getPatientsApptAndOrders()
     }
-  }, [getPatientsAppointment])
+  }, [getPatientsApptAndOrders])
   const debouncedApplySearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (timeoutId) clearTimeout(timeoutId);
     timeoutId = window.setTimeout(() => {
@@ -114,7 +116,7 @@ const Patients = () => {
           </div>
         </div>
         <DrawerContent className="px-5 md:w-1/2 w-[97%] " >
-          <Tabs defaultValue="appointments" className="w-auto md:w-[400px]">
+          <Tabs defaultValue="appointments" >
           <DrawerHeader>
             <DrawerTitle>Turnos</DrawerTitle>
             <TabsList>
@@ -123,8 +125,8 @@ const Patients = () => {
             </TabsList>
             
           </DrawerHeader>
-            <TabsContent value="appointments"><AppointmentCardsGrid appointments={patientAppointments}/></TabsContent>
-            <TabsContent value="orders">Change your password here.</TabsContent>
+            <TabsContent value="appointments"><AppointmentCardsGrid appointments={patientApptsAndOrders.appts}/></TabsContent>
+            <TabsContent value="orders"><OrderCardsGrid orders={patientApptsAndOrders.orders}/></TabsContent>
           </Tabs>
 
           

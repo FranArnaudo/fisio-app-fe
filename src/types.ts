@@ -63,3 +63,35 @@ export type PaginationParams = {
   search: string;
   filters: Record<string, any>;
 };
+
+export type Order = {
+  id: string;
+  url?: string;
+  notes?: string;
+  status: string; // 'Generada', 'Presentado', 'Expired'
+  submittedAt?: Date;
+  patient: {
+    id: string;
+    firstname: string;
+    lastname: string;
+  };
+  healthcare?: {
+    id: string;
+    name: string;
+  };
+  service: {
+    id: string;
+    name: string;
+    price: number;
+  };
+  area?: {
+    id: string;
+    name: string;
+  };
+  appointments?: Array<{
+    id: string;
+    appointmentDatetime: Date;
+  }>;
+  createdAt: Date;
+  expiresAt?: Date;
+}

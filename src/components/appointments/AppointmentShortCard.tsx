@@ -159,7 +159,7 @@ const AppointmentCardsGrid: React.FC<AppointmentCardsGridProps> = ({ appointment
       </div>
       
       {/* Desktop View - Vertical Infinite Scroll */}
-      <div className="hidden md:flex flex-col gap-4 w-full">
+      <div className="hidden md:grid md:grid-cols-1 lg:grid-cols-2 gap-4 w-full">
         {appointments.slice(0, visibleItems).map((appointment) => (
           <div key={appointment.id} className="w-full">
             <AppointmentCard appointment={appointment} />
