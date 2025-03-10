@@ -17,7 +17,7 @@ import { Calendar, Clock, Users, UserPlus, FileText, CheckCircle, XCircle, Alert
 const StatusBadge = ({ status }: { status: string }) => {
   let colorClass = "";
   let Icon = null;
-  
+
   switch (status) {
     case "Programado":
       colorClass = "bg-blue-50 text-blue-700 border-blue-100";
@@ -35,7 +35,7 @@ const StatusBadge = ({ status }: { status: string }) => {
       colorClass = "bg-gray-50 text-gray-700 border-gray-100";
       Icon = AlertCircle;
   }
-  
+
   return (
     <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass} border`}>
       {Icon && <Icon className="w-3 h-3 mr-1" />}
@@ -54,19 +54,19 @@ type AppointmentModalProps = {
 const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: AppointmentModalProps) => {
   const { fetchData } = useFetch();
   const decodedJWT = jwtDecode(localStorage.getItem("jwt_token") as string);
-  
+
   const [isAddingNewPatient, setIsAddingNewPatient] = useState(false);
   const [professionals, setProfessionals] = useState<Option<string>[]>([]);
   const [patients, setPatients] = useState<Option<string>[]>([]);
 
   useEffect(() => {
-    if(Object.keys(initialValues).length) {
+    if (Object.keys(initialValues).length) {
       formik.setValues(initialValues);
     } else {
       formik.resetForm();
     }
   }, [initialValues]);
-  
+
   const formik = useFormik({
     initialValues: {
       appointmentDatetime: dayjs().format("YYYY-MM-DDTHH:mm"),
@@ -135,7 +135,7 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
             <Calendar className="w-4 h-4 mr-2 text-primary" />
             Detalles del turno
           </h4>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Fecha y hora</label>
@@ -146,7 +146,7 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
                 value={formik.values.appointmentDatetime}
               />
             </div>
-            
+
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Duración en minutos</label>
               <div className="relative">
@@ -160,7 +160,7 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
             </div>
           </div>
         </div>
-        
+
         {/* Status and Professional section */}
         <div className="bg-white p-4 rounded-md border border-gray-200 shadow-sm">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -183,7 +183,7 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
                 <StatusBadge status={formik.values.status} />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Profesional</label>
               <Select
@@ -199,17 +199,16 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
             </div>
           </div>
         </div>
-        
+
         {/* Patient section */}
-        <div className={`bg-white rounded-md border border-gray-200 transition-all duration-200 ${
-          isAddingNewPatient ? "shadow-lg" : "shadow-sm"
-        }`}>
+        <div className={`bg-white rounded-md border border-gray-200 transition-all duration-200 ${isAddingNewPatient ? "shadow-lg" : "shadow-sm"
+          }`}>
           <div className="p-4">
             <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
               <Users className="w-4 h-4 mr-2 text-primary" />
               Información del paciente
             </h4>
-            
+
             {!isAddingNewPatient ? (
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">Paciente</label>
@@ -226,7 +225,7 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
                       value={formik.values.patient}
                     />
                   </div>
-                  <Button 
+                  <Button
                     onClick={() => setIsAddingNewPatient(true)}
                     iconStart={<UserPlus size={16} />}
                   >
@@ -245,7 +244,7 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
                     value={formik.values.patientFirstname}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">Apellido del paciente</label>
                   <TextInput
@@ -255,7 +254,7 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
                     value={formik.values.patientLastname}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">Teléfono (opcional)</label>
                   <TextInput
@@ -265,8 +264,8 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
                     value={formik.values.patientPhone}
                   />
                 </div>
-                
-                <Button 
+
+                <Button
                   onClick={() => setIsAddingNewPatient(false)}
                   type="button"
                   variant="secondary"
@@ -276,7 +275,7 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
                 </Button>
               </div>
             )}
-            
+
             <div className="mt-4 flex items-center">
               <input
                 type="checkbox"
@@ -289,7 +288,7 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
             </div>
           </div>
         </div>
-        
+
         {/* Notes section */}
         <div className="bg-white p-4 rounded-md border border-gray-200 shadow-sm">
           <div className="space-y-2">
@@ -319,19 +318,19 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
             />
           </div>
         </div>
-        
+
         {/* Action buttons */}
         <div className="flex w-full flex-col sm:flex-row gap-2 mt-2">
-          <Button 
-            variant="secondary" 
-            className="w-full" 
-            type="button" 
+          <Button
+            variant="secondary"
+            className="w-full"
+            type="button"
             onClick={onClose}
           >
             Cancelar
           </Button>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="w-full"
           >
             Guardar

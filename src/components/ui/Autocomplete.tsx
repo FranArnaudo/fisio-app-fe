@@ -12,7 +12,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
   onChange,
   ...props
 }) => {
-  const [inputValue, setInputValue] = useState(options.find(op=>op.id===props.value)?.text);
+  const [inputValue, setInputValue] = useState(options.find(op => op.id === props.value)?.text);
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   // Normalize strings to handle diacritics
@@ -61,7 +61,6 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
     <div className="relative w-full" ref={containerRef}>
       <input
         type="text"
-        key={`autocomplete-${inputValue}`}
         className="
           w-full
           rounded-md
@@ -76,7 +75,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
           transition-colors
         "
         {...props}
-        value={options.find(op=>op.id===props.value)?.text}
+        value={inputValue ?? options.find(op => op.id === props.value)?.text}
         onChange={handleInputChange}
       />
 

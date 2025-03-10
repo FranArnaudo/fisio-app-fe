@@ -27,10 +27,10 @@ const Healthcares = () => {
   const [submissionDate, setSubmissionDate] = useState(dayjs().format("YYYY-MM-DD"));
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Hooks
   const { fetchData } = useFetch();
-  
+
   // Fetch healthcare list with pagination
   const getHealthcaresWithPagination = useCallback(({
     page,
@@ -43,8 +43,7 @@ const Healthcares = () => {
       .join("&");
 
     return fetchData(
-      `/healthcare?page=${page}&limit=${limit}&name=${search}${
-        filtersQuery ? "&" + filtersQuery : ""
+      `/healthcare?page=${page}&limit=${limit}&name=${search}${filtersQuery ? "&" + filtersQuery : ""
       }`,
       "GET"
     );
@@ -78,7 +77,7 @@ const Healthcares = () => {
       setFilteredOrders([]);
       return;
     }
-    
+
     // Group by submission status and year
     const filtered = orders.filter(order => {
       if (order.submittedAt) {
@@ -87,7 +86,7 @@ const Healthcares = () => {
       }
       return true;
     });
-    
+
     setFilteredOrders(filtered);
   }, [orders, selectedYear]);
 
@@ -122,15 +121,15 @@ const Healthcares = () => {
         orderIds: selectedOrderIds.map(id => ({ id })),
         submittedAt: submissionDate
       };
-      
+
       await fetchData("/orders/bulk-submit", "POST", payload);
       toast.success("Órdenes presentadas exitosamente");
-      
+
       // Refresh orders
       if (selectedHealthcare) {
         await fetchHealthcareOrders(selectedHealthcare.id);
       }
-      
+
       // Reset selection
       setSelectedOrderIds([]);
       setIsSubmitModalOpen(false);
@@ -165,27 +164,27 @@ const Healthcares = () => {
   // Get available years from submitted orders
   const getAvailableYears = () => {
     if (!orders.length) return [new Date().getFullYear()];
-    
+
     const yearsSet = new Set<number>();
     yearsSet.add(new Date().getFullYear()); // Always include current year
-    
+
     orders.forEach(order => {
       if (order.submittedAt) {
         yearsSet.add(dayjs(order.submittedAt).year());
       }
     });
-    
+
     return Array.from(yearsSet).sort((a, b) => b - a); // Sort descending
   };
 
   // Group submitted orders by month
   const getOrdersByMonth = () => {
     if (!filteredOrders.length) return [];
-    
+
     const submittedOrders = filteredOrders.filter(
       order => order.status === "Presentado" && order.submittedAt
     );
-    
+
     // Group by month
     const groupedByMonth = submittedOrders.reduce((acc, order) => {
       const month = dayjs(order.submittedAt).format("MMMM YYYY");
@@ -193,7 +192,7 @@ const Healthcares = () => {
       acc[month].push(order);
       return acc;
     }, {} as Record<string, Order[]>);
-    
+
     // Convert to array and sort by date (newest first)
     return Object.entries(groupedByMonth)
       .map(([month, orders]) => ({ month, orders }))
@@ -243,7 +242,7 @@ const Healthcares = () => {
               </div>
               <AddHealthcareModal refetch={refetch} />
             </div>
-            
+
             <div className="bg-white border border-gray-300 rounded-md shadow-sm overflow-hidden">
               <DrawerTrigger asChild>
                 <div className="cursor-pointer">
@@ -255,7 +254,7 @@ const Healthcares = () => {
                 </div>
               </DrawerTrigger>
             </div>
-            
+
             <div>
               <Pagination
                 currentPage={currentPage}
@@ -283,8 +282,8 @@ const Healthcares = () => {
                       </span>
                     </div>
                   </div>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     onClick={handleDrawerClose}
                     className="text-gray-500"
                   >
@@ -328,18 +327,18 @@ const Healthcares = () => {
 
                   {/* Pending Orders Tab */}
                   <TabsContent value="pending" className="mt-0">
-                    <div className="mb-4 flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Órdenes a presentar</h3>
-                      {getPendingOrders().length > 0 && (
-                        <Button 
+                    <h3 className="text-lg font-semibold mb-4">Órdenes a presentar</h3>
+                    {getPendingOrders().length > 0 && (
+                      <div className="mb-4 flex justify-between items-center">
+                        <Button
                           variant="primary"
                           onClick={() => setIsSubmitModalOpen(true)}
                           disabled={selectedOrderIds.length === 0}
                         >
                           Presentar seleccionadas
                         </Button>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
                     {getPendingOrders().length > 0 ? (
                       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
@@ -347,11 +346,11 @@ const Healthcares = () => {
                           <thead className="bg-gray-50">
                             <tr>
                               <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 w-10">
-                                <input 
-                                  type="checkbox" 
+                                <input
+                                  type="checkbox"
                                   className="rounded border-gray-300"
                                   checked={
-                                    getPendingOrders().length > 0 && 
+                                    getPendingOrders().length > 0 &&
                                     selectedOrderIds.length === getPendingOrders().length
                                   }
                                   onChange={(e) => {
@@ -371,13 +370,13 @@ const Healthcares = () => {
                           </thead>
                           <tbody className="divide-y divide-gray-200">
                             {getPendingOrders().map((order) => (
-                              <tr 
-                                key={order.id} 
+                              <tr
+                                key={order.id}
                                 className="hover:bg-gray-50"
                               >
                                 <td className="px-4 py-3 text-sm text-gray-600">
-                                  <input 
-                                    type="checkbox" 
+                                  <input
+                                    type="checkbox"
                                     className="rounded border-gray-300"
                                     checked={selectedOrderIds.includes(order.id)}
                                     onChange={(e) => handleOrderSelection(order.id, e.target.checked)}
@@ -420,7 +419,7 @@ const Healthcares = () => {
                   {/* Submitted Orders Tab */}
                   <TabsContent value="submitted" className="mt-0">
                     <h3 className="text-lg font-semibold mb-4">Órdenes presentadas</h3>
-                    
+
                     {getOrdersByMonth().length > 0 ? (
                       <div className="space-y-6">
                         {getOrdersByMonth().map(({ month, orders }) => (
@@ -428,7 +427,7 @@ const Healthcares = () => {
                             <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
                               <h4 className="font-medium text-gray-900 flex items-center">
                                 <Calendar className="h-4 w-4 text-primary mr-2" />
-                                {month} 
+                                {month}
                                 <span className="ml-2 text-sm text-gray-500">({orders.length} órdenes)</span>
                               </h4>
                             </div>
@@ -480,7 +479,7 @@ const Healthcares = () => {
         </DrawerContent>
       </Drawer>
 
-     
+
 
       {/* Bulk submission modal */}
       <Modal
@@ -492,7 +491,7 @@ const Healthcares = () => {
           <p className="mb-4">
             Está a punto de presentar {selectedOrderIds.length} órdenes para {selectedHealthcare?.name}.
           </p>
-          
+
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Fecha de presentación
@@ -504,7 +503,7 @@ const Healthcares = () => {
               onChange={(e) => setSubmissionDate(e.target.value)}
             />
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-2 mt-6">
             <Button
               variant="ghost"

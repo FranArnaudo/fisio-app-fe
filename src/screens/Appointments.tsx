@@ -16,11 +16,11 @@ import { toast } from "react-toastify";
 import "dayjs/locale/es";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { BsPlus, BsDash } from "react-icons/bs";
-import { 
-  FaTrash, 
-  FaCalendarDay, 
-  FaCalendarWeek, 
-  FaCalendarAlt, 
+import {
+  FaTrash,
+  FaCalendarDay,
+  FaCalendarWeek,
+  FaCalendarAlt,
   FaList,
   FaChevronLeft,
   FaChevronRight,
@@ -73,11 +73,11 @@ const Appointments = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dayColumnWidth, setDayColumnWidth] = useState(200);
-  
+
   // Refs for scroll synchronization
   const headerRef = useRef<HTMLElement | null>(null);
   const contentRef = useRef<HTMLElement | null>(null);
-  
+
   // We'll store the appointment range in a ref to avoid rerendering cycles
   const apptRangeRef = useRef(getCurrentWeekRange(currentDate));
 
@@ -89,7 +89,7 @@ const Appointments = () => {
   const handleZoomOut = () => {
     setDayColumnWidth(prev => Math.max(prev - WIDTH_STEP, MIN_WIDTH));
   };
-  
+
   // Set up scroll synchronization
   useEffect(() => {
     // Function to set up scroll synchronization
@@ -101,7 +101,7 @@ const Appointments = () => {
       if (!contentRef.current) {
         contentRef.current = document.querySelector('.rbc-time-content');
       }
-      
+
       if (headerRef.current && contentRef.current) {
         // Set up event listeners for scroll synchronization
         const handleContentScroll = () => {
@@ -109,17 +109,17 @@ const Appointments = () => {
             headerRef.current.scrollLeft = contentRef.current.scrollLeft;
           }
         };
-        
+
         const handleHeaderScroll = () => {
           if (headerRef.current && contentRef.current) {
             contentRef.current.scrollLeft = headerRef.current.scrollLeft;
           }
         };
-        
+
         // Add event listeners
         contentRef.current.addEventListener('scroll', handleContentScroll);
         headerRef.current.addEventListener('scroll', handleHeaderScroll);
-        
+
         // Return cleanup function
         return () => {
           if (contentRef.current) {
@@ -131,19 +131,19 @@ const Appointments = () => {
         };
       }
     };
-    
+
     // Small delay to ensure DOM is ready
     const timeoutId = setTimeout(() => {
       const cleanup = setupScrollSync();
-      
+
       return () => {
         if (cleanup) cleanup();
       };
     }, 100);
-    
+
     return () => clearTimeout(timeoutId);
   }, [calendarView]); // Only re-run when view changes
-  
+
   // Inject custom CSS for day width control
   useEffect(() => {
     // Create a style element to inject custom CSS
@@ -156,19 +156,19 @@ const Appointments = () => {
         min-width: ${dayColumnWidth}px;
       }
     `;
-    
+
     // Add an ID to prevent duplicates
     styleEl.id = 'dynamic-calendar-styles';
-    
+
     // Remove any existing style with the same ID
     const existingStyle = document.getElementById('dynamic-calendar-styles');
     if (existingStyle) {
       existingStyle.remove();
     }
-    
+
     // Add the new style to the document head
     document.head.appendChild(styleEl);
-    
+
     // Clean up function
     return () => {
       const styleToRemove = document.getElementById('dynamic-calendar-styles');
@@ -177,7 +177,7 @@ const Appointments = () => {
       }
     };
   }, [dayColumnWidth]);
-  
+
   // Update appointment range when date or view changes
   useEffect(() => {
     if (calendarView === 'week') {
@@ -195,11 +195,11 @@ const Appointments = () => {
         end: month.endOf("month").format("YYYY-MM-DD"),
       };
     }
-    
+
     // Fetch appointments with the new range
     getAppts();
   }, [calendarView, currentDate]); // No getAppts in dependency array
-  
+
   // Handle date range changes - uses apptRangeRef to avoid rerendering
   const handleRangeChange = (
     range: AppointmentRange | Date[],
@@ -222,7 +222,7 @@ const Appointments = () => {
           end: dayjs((range as AppointmentRange).end).format("YYYY-MM-DD"),
         };
       }
-      
+
       // Fetch appointments with the new range
       getAppts();
     } catch (err) {
@@ -239,7 +239,7 @@ const Appointments = () => {
     try {
       const newAppointments = [...appointments];
       const eventWithId = e.event as EventWithId;
-      
+
       // Create temporary event with unique ID
       newAppointments.push({
         ...eventWithId,
@@ -249,7 +249,7 @@ const Appointments = () => {
         end: e.end,
         id: `${eventWithId.id}_duplicated_${e.start.toString()}`,
       });
-      
+
       setAppointments(newAppointments);
       setDroppedEvent(e as EventInteractionArgs<EventWithId>);
       setIsDropOptionModalOpen(true);
@@ -261,10 +261,10 @@ const Appointments = () => {
 
   const handleMoveEvent = async () => {
     if (!droppedEvent) return;
-    
+
     try {
       const originalApptId = droppedEvent.event.id.split("_")[0];
-      
+
       await fetchData(`/appointments/${originalApptId}`, "PATCH", {
         appointmentDatetime: droppedEvent.start,
         duration: dayjs(droppedEvent.end).diff(
@@ -272,7 +272,7 @@ const Appointments = () => {
           "minute"
         ),
       });
-      
+
       await getAppts();
       setIsDropOptionModalOpen(false);
       toast.success("Turno movido con éxito");
@@ -289,15 +289,15 @@ const Appointments = () => {
         toast.error("Turno no encontrado");
         return;
       }
-      
-      const moveTo = to === "prev" 
+
+      const moveTo = to === "prev"
         ? dayjs(appt.resource.appointmentDatetime).subtract(1, 'week')
         : dayjs(appt.resource.appointmentDatetime).add(1, 'week');
-      
+
       await fetchData(`/appointments/${id}`, "PATCH", {
         appointmentDatetime: moveTo.toISOString()
       });
-      
+
       await getAppts();
       toast.success("Turno movido con éxito");
     } catch (err) {
@@ -308,7 +308,7 @@ const Appointments = () => {
 
   const handleDeleteEvent = async () => {
     if (!selectedAppt) return;
-    
+
     try {
       await fetchData(`/appointments/${selectedAppt}`, "DELETE");
       setIsDeleteApptModalOpen(false);
@@ -323,7 +323,7 @@ const Appointments = () => {
 
   const handleDuplicateEvent = async () => {
     if (!droppedEvent) return;
-    
+
     try {
       const newAppt: Partial<Appointment> = {
         ...droppedEvent.event.resource,
@@ -335,17 +335,17 @@ const Appointments = () => {
         patient: droppedEvent.event.resource.patient.id,
         professional: droppedEvent.event.resource.professional.id,
       };
-      
+
       // Remove ID to create a new appointment
       delete newAppt.id;
-      
+
       const created = await fetchData("/appointments", "POST", newAppt);
-      
+
       if (created) {
         toast.success("Turno duplicado con éxito");
         await getAppts();
       }
-      
+
       setIsDropOptionModalOpen(false);
     } catch (err) {
       console.error("Error duplicating event:", err);
@@ -364,12 +364,12 @@ const Appointments = () => {
   // Fetch appointments based on date range
   const getAppts = useCallback(async () => {
     setError(null);
-    
+
     try {
       const appts = await fetchData(
         `/appointments/calendar?start=${apptRangeRef.current.start}&end=${apptRangeRef.current.end}`
       );
-      
+
       // Convert string dates to Date objects
       const apptsWithCorrectedDate = appts.map(
         (appt: Event & { start: string; end: string }) => ({
@@ -378,7 +378,7 @@ const Appointments = () => {
           end: new Date(appt.end),
         })
       );
-      
+
       setAppointments(apptsWithCorrectedDate);
       setIsLoaded(true);
     } catch (err) {
@@ -396,10 +396,10 @@ const Appointments = () => {
   // Get initial values for selected appointment
   const selectedApptInitialValues = useMemo(() => {
     if (selectedAppt === "") return {};
-    
+
     const appt = appointments.find(ap => ap.id === selectedAppt)?.resource;
     if (!appt) return {};
-    
+
     return {
       appointmentDatetime: dayjs(appt.appointmentDatetime).format("YYYY-MM-DDTHH:mm"),
       status: appt.status,
@@ -414,18 +414,18 @@ const Appointments = () => {
   }, [selectedAppt, appointments]);
 
   // Create new appointment from a specific day/time slot
-// Create new appointment from a specific day/time slot
-const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
-  // Set initial values for a new appointment
-  setModalInitialValues({
-    appointmentDatetime: dayjs(slotInfo.start).format("YYYY-MM-DDTHH:mm"),
-    duration: dayjs(slotInfo.end).diff(dayjs(slotInfo.start), "minute")
-  });
-  // Clear any previous selection (ensuring a new appointment)
-  setSelectedAppt('');
-  // Open the modal with the new initial values
-  setIsAddApptModalOpen(true);
-};
+  // Create new appointment from a specific day/time slot
+  const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
+    // Set initial values for a new appointment
+    setModalInitialValues({
+      appointmentDatetime: dayjs(slotInfo.start).format("YYYY-MM-DDTHH:mm"),
+      duration: dayjs(slotInfo.end).diff(dayjs(slotInfo.start), "minute")
+    });
+    // Clear any previous selection (ensuring a new appointment)
+    setSelectedAppt('');
+    // Open the modal with the new initial values
+    setIsAddApptModalOpen(true);
+  };
 
 
   // Current date formatter
@@ -444,7 +444,7 @@ const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
 
   // Get icon for calendar view
   const getViewIcon = (view: View) => {
-    switch(view) {
+    switch (view) {
       case 'day': return <FaCalendarDay className="mr-1" />;
       case 'week': return <FaCalendarWeek className="mr-1" />;
       case 'month': return <FaCalendarAlt className="mr-1" />;
@@ -456,17 +456,17 @@ const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
   return (
     <div className="flex h-full flex-col gap-4 pt-4 px-4 sm:px-10 bg-background text-foreground">
       {/* Appointment Creation/Edit Modal */}
-      <AppointmentModal 
-        refetchData={getAppts} 
-        open={isAddApptModalOpen} 
+      <AppointmentModal
+        refetchData={getAppts}
+        open={isAddApptModalOpen}
         onClose={() => {
           setSelectedAppt('');
           setIsAddApptModalOpen(false);
           setModalInitialValues({})
         }}
-        initialValues={selectedAppt ? selectedApptInitialValues : modalInitialValues} 
+        initialValues={selectedAppt ? selectedApptInitialValues : modalInitialValues}
       />
-      
+
       {/* Appointment Deletion Modal */}
       <DeleteAppointmentModal
         open={isDeleteApptModalOpen}
@@ -476,7 +476,7 @@ const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
           setIsDeleteApptModalOpen(false);
         }}
       />
-      
+
       {/* Top Actions Bar */}
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-xl font-semibold">Calendario de Turnos</h2>
@@ -489,14 +489,14 @@ const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
           Agregar turno
         </Button>
       </div>
-      
+
       {/* Improved Calendar Controls */}
       <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-12 gap-4'} mb-4`}>
         {/* Date Navigation */}
         <div className={`${isMobile ? '' : 'col-span-6'} bg-gray-50 rounded-lg p-3 shadow-sm`}>
           <div className="flex items-center justify-between">
             <div className="flex space-x-2">
-              <Button 
+              <Button
                 variant="secondary"
                 onClick={() => setCurrentDate(new Date())}
                 className="flex items-center py-1 px-3"
@@ -505,7 +505,7 @@ const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
                 Hoy
               </Button>
               <div className="flex rounded-md overflow-hidden border border-gray-300">
-                <Button 
+                <Button
                   variant="secondary"
                   onClick={() => {
                     const newDate = new Date(currentDate);
@@ -522,7 +522,7 @@ const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
                 >
                   <FaChevronLeft />
                 </Button>
-                <Button 
+                <Button
                   variant="secondary"
                   onClick={() => {
                     const newDate = new Date(currentDate);
@@ -546,7 +546,7 @@ const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
             </div>
           </div>
         </div>
-        
+
         {/* View Selection Controls */}
         <div className={`${isMobile ? '' : 'col-span-6'} bg-gray-50 rounded-lg p-3 shadow-sm`}>
           <div className="flex items-center md:justify-end sm:justify-start">
@@ -557,25 +557,22 @@ const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
                   key={view}
                   variant={calendarView === view ? "primary" : "secondary"}
                   onClick={() => setCalendarView(view)}
-                  className={`py-1 px-3 flex items-center rounded-none ${
-                    calendarView === view ? 'bg-primary text-white' : ''
-                  } ${
-                    view !== 'agenda' ? 'border-r border-gray-300' : ''
-                  }`}
+                  className={`py-1 px-3 flex items-center rounded-none ${calendarView === view ? 'bg-primary text-white' : ''
+                    } ${view !== 'agenda' ? 'border-r border-gray-300' : ''
+                    }`}
                 >
                   {getViewIcon(view)}
-                  {isMobile ? '' : view === 'day' ? 'Día' : 
-                                   view === 'week' ? 'Semana' : 
-                                   view === 'month' ? 'Mes' : 'Agenda'}
+                  {isMobile ? '' : view === 'day' ? 'Día' :
+                    view === 'week' ? 'Semana' :
+                      view === 'month' ? 'Mes' : 'Agenda'}
                 </Button>
               ))}
             </div>
-            
-            {/* Zoom controls removed from here */}
+
           </div>
         </div>
       </div>
-      
+
       {/* Move/Duplicate Option Modal */}
       <Modal
         title="¿Qué desea hacer?"
@@ -600,28 +597,28 @@ const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
           </Button>
         </div>
       </Modal>
-      
+
       {/* Loading State */}
       {isLoading && !isLoaded && (
         <div className="flex items-center justify-center h-32">
           <p>Cargando turnos...</p>
         </div>
       )}
-      
+
       {/* Error State */}
       {error && (
         <div className="flex items-center justify-center h-32">
           <p className="text-red-500">{error}</p>
-          <Button 
-            variant="secondary" 
-            className="ml-2" 
+          <Button
+            variant="secondary"
+            className="ml-2"
             onClick={() => getAppts()}
           >
             Reintentar
           </Button>
         </div>
       )}
-      
+
       {/* Calendar Component with Bottom-Right Zoom Controls */}
       <div className="calendar-container">
         <DnDCalendar
@@ -637,7 +634,7 @@ const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
           onSelectSlot={handleSelectSlot}
           components={{
             event: (props) => (
-              <CustomEvent 
+              <CustomEvent
                 {...props}
                 onMoveToWeek={handleMoveToWeekEvent}
                 onDelete={(id: string) => {
@@ -673,12 +670,12 @@ const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
             // Could implement resizing logic here
           }}
           onRangeChange={handleRangeChange}
-          className="w-full h-full" 
-          eventPropGetter={(props: any) => ({ 
-            style: { 
+          className="w-full h-full"
+          eventPropGetter={(props: any) => ({
+            style: {
               background: `${props.resource.professional.colorHex}99`,
               opacity: props.resource.status === 'cancelled' ? 0.5 : 1
-            } 
+            }
           })}
           min={
             new Date(
@@ -713,28 +710,30 @@ const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
             noEventsInRange: "No hay turnos en este rango de fechas"
           }}
         />
-        
+
         {/* Floating Zoom Controls in Bottom Right */}
         {(calendarView === 'day' || calendarView === 'week') && (
           <div className="zoom-controls-corner">
-            <Button 
+            <Button
               variant="secondary"
               onClick={handleZoomOut}
               className="zoom-button-corner mr-2"
               disabled={dayColumnWidth <= MIN_WIDTH}
+              iconStart={<BsDash className="text-black" />}
             >
-              <BsDash />
             </Button>
             <div className="flex items-center justify-center text-sm min-w-[40px] text-center">
               {Math.round(dayColumnWidth <= 200 ? (dayColumnWidth - 125) / (200 - 125) * 50 + 50 : (dayColumnWidth - 200) / (200 - 125) * 50 + 100)}
             </div>
-            <Button 
+            <Button
               variant="secondary"
               onClick={handleZoomIn}
               className="zoom-button-corner ml-2"
               disabled={dayColumnWidth >= MAX_WIDTH}
+              iconEnd={
+                <BsPlus />
+              }
             >
-              <BsPlus />
             </Button>
           </div>
         )}
@@ -756,17 +755,17 @@ const CustomEvent = ({ event, onMoveToWeek, onDelete, onEdit }: CustomEventProps
   const isMobile = useIsMobile();
   const backgroundColor = event.resource.professional.colorHex;
   const isCancelled = event.resource.status === 'cancelled';
-  
+
   // Determine if event has enough height to show all controls
   const [showControls, setShowControls] = useState(false);
-  
+
   // Toggle controls visibility on hover for non-mobile
   const handleMouseEnter = () => {
     if (!isMobile) {
       setShowControls(true);
     }
   };
-  
+
   const handleMouseLeave = () => {
     if (!isMobile) {
       setShowControls(false);
@@ -774,11 +773,11 @@ const CustomEvent = ({ event, onMoveToWeek, onDelete, onEdit }: CustomEventProps
   };
 
   return (
-    <div 
-      className={`custom-event-container text-black px-2 pt-1 ${isCancelled ? 'line-through opacity-60' : ''}`} 
+    <div
+      className={`custom-event-container text-black px-2 pt-1 ${isCancelled ? 'line-through opacity-60' : ''}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      style={{borderWidth:'1px', borderColor:`${backgroundColor}`}}
+      style={{ borderWidth: '1px', borderColor: `${backgroundColor}` }}
     >
       <div className="rbc-addons-dnd-resizable">
         {/* Event Label (Time) */}
@@ -786,26 +785,26 @@ const CustomEvent = ({ event, onMoveToWeek, onDelete, onEdit }: CustomEventProps
           {!showControls && <div className="rbc-event-label-custom ">
             {dayjs(event.start).format("HH:mm")} – {dayjs(event.end).format("HH:mm")}
           </div>}
-          
+
           {/* Controls (always visible on mobile, visible on hover for desktop) */}
           {(!isMobile && showControls) && (
             <div className="flex w-full justify-end items-center">
               <div className="flex w-full justify-end items-center gap-1 pr-1">
-                <PiArrowArcLeftBold 
+                <PiArrowArcLeftBold
                   size="20"
-                  className="hover:bg-black/50 p-1 rounded cursor-pointer" 
+                  className="hover:bg-black/50 p-1 rounded cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     onMoveToWeek((event as EventWithId).id, 'prev');
-                  }} 
+                  }}
                 />
-                <PiArrowArcRightBold 
+                <PiArrowArcRightBold
                   size="20"
-                  className="hover:bg-black/50 p-1 rounded cursor-pointer" 
+                  className="hover:bg-black/50 p-1 rounded cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     onMoveToWeek((event as EventWithId).id, 'next');
-                  }} 
+                  }}
                 />
                 <FiEdit
                   size="20"
@@ -815,13 +814,13 @@ const CustomEvent = ({ event, onMoveToWeek, onDelete, onEdit }: CustomEventProps
                     onEdit((event as EventWithId).id);
                   }}
                 />
-                <FaTrash 
+                <FaTrash
                   size="20"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDelete((event as EventWithId).id);
-                  }} 
-                  className="hover:text-red-500 p-1 rounded cursor-pointer" 
+                  }}
+                  className="hover:text-red-500 p-1 rounded cursor-pointer"
                 />
               </div>
             </div>
