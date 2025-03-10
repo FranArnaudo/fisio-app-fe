@@ -67,6 +67,7 @@ const Appointments = () => {
   const [calendarView, setCalendarView] = useState<View>(isMobile ? "day" : "week");
   const [currentDate, setCurrentDate] = useState(today);
   const [droppedEvent, setDroppedEvent] = useState<EventInteractionArgs<EventWithId>>();
+  const [modalInitialValues, setModalInitialValues] = useState({});
   const [isDropOptionModalOpen, setIsDropOptionModalOpen] = useState(false);
   const [appointments, setAppointments] = useState<EventWithId[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -242,7 +243,9 @@ const Appointments = () => {
       // Create temporary event with unique ID
       newAppointments.push({
         ...eventWithId,
+        //@ts-ignore
         start: e.start,
+        //@ts-ignore
         end: e.end,
         id: `${eventWithId.id}_duplicated_${e.start.toString()}`,
       });
@@ -411,14 +414,19 @@ const Appointments = () => {
   }, [selectedAppt, appointments]);
 
   // Create new appointment from a specific day/time slot
-  const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
-    // Open modal with pre-filled date/time
-    setIsAddApptModalOpen(true);
-    // Clear any previous selection
-    setSelectedAppt('');
-    
-    // Initial values will be handled by AppointmentModal component
-  };
+// Create new appointment from a specific day/time slot
+const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
+  // Set initial values for a new appointment
+  setModalInitialValues({
+    appointmentDatetime: dayjs(slotInfo.start).format("YYYY-MM-DDTHH:mm"),
+    duration: dayjs(slotInfo.end).diff(dayjs(slotInfo.start), "minute")
+  });
+  // Clear any previous selection (ensuring a new appointment)
+  setSelectedAppt('');
+  // Open the modal with the new initial values
+  setIsAddApptModalOpen(true);
+};
+
 
   // Current date formatter
   const formatCurrentDate = () => {
@@ -454,8 +462,9 @@ const Appointments = () => {
         onClose={() => {
           setSelectedAppt('');
           setIsAddApptModalOpen(false);
+          setModalInitialValues({})
         }}
-        initialValues={selectedApptInitialValues} 
+        initialValues={selectedAppt ? selectedApptInitialValues : modalInitialValues} 
       />
       
       {/* Appointment Deletion Modal */}
@@ -488,8 +497,7 @@ const Appointments = () => {
           <div className="flex items-center justify-between">
             <div className="flex space-x-2">
               <Button 
-                size="sm"
-                variant="outline"
+                variant="secondary"
                 onClick={() => setCurrentDate(new Date())}
                 className="flex items-center py-1 px-3"
               >
@@ -498,8 +506,7 @@ const Appointments = () => {
               </Button>
               <div className="flex rounded-md overflow-hidden border border-gray-300">
                 <Button 
-                  size="sm"
-                  variant="ghost"
+                  variant="secondary"
                   onClick={() => {
                     const newDate = new Date(currentDate);
                     if (calendarView === 'day') {
@@ -516,7 +523,7 @@ const Appointments = () => {
                   <FaChevronLeft />
                 </Button>
                 <Button 
-                  variant="ghost"
+                  variant="secondary"
                   onClick={() => {
                     const newDate = new Date(currentDate);
                     if (calendarView === 'day') {
@@ -542,14 +549,13 @@ const Appointments = () => {
         
         {/* View Selection Controls */}
         <div className={`${isMobile ? '' : 'col-span-6'} bg-gray-50 rounded-lg p-3 shadow-sm`}>
-          <div className="flex items-center justify-center">
+          <div className="flex items-center md:justify-end sm:justify-start">
             {/* View Controls */}
             <div className="flex rounded-md overflow-hidden border border-gray-300">
               {(['day', 'week', 'month', 'agenda'] as View[]).map((view) => (
                 <Button
                   key={view}
-                  size="sm"
-                  variant={calendarView === view ? "default" : "ghost"}
+                  variant={calendarView === view ? "primary" : "secondary"}
                   onClick={() => setCalendarView(view)}
                   className={`py-1 px-3 flex items-center rounded-none ${
                     calendarView === view ? 'bg-primary text-white' : ''
@@ -670,7 +676,7 @@ const Appointments = () => {
           className="w-full h-full" 
           eventPropGetter={(props: any) => ({ 
             style: { 
-              background: props.resource.professional.colorHex,
+              background: `${props.resource.professional.colorHex}99`,
               opacity: props.resource.status === 'cancelled' ? 0.5 : 1
             } 
           })}
@@ -712,8 +718,7 @@ const Appointments = () => {
         {(calendarView === 'day' || calendarView === 'week') && (
           <div className="zoom-controls-corner">
             <Button 
-              size="sm"
-              variant="ghost"
+              variant="secondary"
               onClick={handleZoomOut}
               className="zoom-button-corner mr-2"
               disabled={dayColumnWidth <= MIN_WIDTH}
@@ -724,8 +729,7 @@ const Appointments = () => {
               {Math.round(dayColumnWidth <= 200 ? (dayColumnWidth - 125) / (200 - 125) * 50 + 50 : (dayColumnWidth - 200) / (200 - 125) * 50 + 100)}
             </div>
             <Button 
-              size="sm"
-              variant="ghost"
+              variant="secondary"
               onClick={handleZoomIn}
               className="zoom-button-corner ml-2"
               disabled={dayColumnWidth >= MAX_WIDTH}
@@ -771,23 +775,24 @@ const CustomEvent = ({ event, onMoveToWeek, onDelete, onEdit }: CustomEventProps
 
   return (
     <div 
-      className={`custom-event-container px-2 pt-1 ${isCancelled ? 'line-through opacity-60' : ''}`} 
-      style={{ background: backgroundColor }}
+      className={`custom-event-container text-black px-2 pt-1 ${isCancelled ? 'line-through opacity-60' : ''}`} 
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      style={{borderWidth:'1px', borderColor:`${backgroundColor}`}}
     >
       <div className="rbc-addons-dnd-resizable">
         {/* Event Label (Time) */}
         <div className="flex justify-between pb-1">
-          {!showControls && <div className="rbc-event-label-custom">
+          {!showControls && <div className="rbc-event-label-custom ">
             {dayjs(event.start).format("HH:mm")} – {dayjs(event.end).format("HH:mm")}
           </div>}
           
           {/* Controls (always visible on mobile, visible on hover for desktop) */}
-          {(isMobile || showControls) && (
-            <div className="flex justify-end items-center">
-              <div className="flex justify-end items-center gap-1 pr-1">
+          {(!isMobile && showControls) && (
+            <div className="flex w-full justify-end items-center">
+              <div className="flex w-full justify-end items-center gap-1 pr-1">
                 <PiArrowArcLeftBold 
+                  size="20"
                   className="hover:bg-black/50 p-1 rounded cursor-pointer" 
                   onClick={(e) => {
                     e.stopPropagation();
@@ -795,6 +800,7 @@ const CustomEvent = ({ event, onMoveToWeek, onDelete, onEdit }: CustomEventProps
                   }} 
                 />
                 <PiArrowArcRightBold 
+                  size="20"
                   className="hover:bg-black/50 p-1 rounded cursor-pointer" 
                   onClick={(e) => {
                     e.stopPropagation();
@@ -802,6 +808,7 @@ const CustomEvent = ({ event, onMoveToWeek, onDelete, onEdit }: CustomEventProps
                   }} 
                 />
                 <FiEdit
+                  size="20"
                   className="hover:bg-black/50 p-1 rounded cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -809,6 +816,7 @@ const CustomEvent = ({ event, onMoveToWeek, onDelete, onEdit }: CustomEventProps
                   }}
                 />
                 <FaTrash 
+                  size="20"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDelete((event as EventWithId).id);

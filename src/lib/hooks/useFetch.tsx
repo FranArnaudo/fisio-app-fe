@@ -2,17 +2,20 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 
 const useFetch = () => {
-  const baseUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:3000";
+  if(!import.meta.env.VITE_API_URL){
+    console.error("Backend url not setup")
+  }
+  const baseUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:3000";
   const [data, setData] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const fetchData = async (
+  const fetchData = async<T = any> (
     endpoint: string,
     method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" = "GET",
     body: Record<string, any> | null = null,
     needsAuth: boolean = true
-  ) => {
+  ):Promise<T> => {
     const jwtToken = localStorage.getItem("jwt_token");
 
     const headers: HeadersInit = {

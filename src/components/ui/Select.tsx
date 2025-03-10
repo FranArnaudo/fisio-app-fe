@@ -58,7 +58,13 @@ const Select: React.FC<SelectProps> = ({
   };
 
   return (
-    <div className="relative w-full " ref={containerRef}>
+    <div className="
+    relative
+     w-full  
+     rounded-md
+          border border-gray-300
+     
+     " ref={containerRef}>
       <button
         type="button"
         onClick={toggleOpen}
@@ -70,7 +76,7 @@ const Select: React.FC<SelectProps> = ({
           rounded-md
           border border-gray-300
           bg-white
-          h-[40px]
+          h-[38px]
           py-2 px-3
           text-sm text-gray-700
           focus:outline-none
