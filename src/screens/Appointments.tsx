@@ -30,6 +30,7 @@ import { FiEdit } from "react-icons/fi";
 import AppointmentModal from "@/components/appointments/AppointmentModal";
 import DeleteAppointmentModal from "@/components/appointments/DeleteAppointmentModal";
 import useIsMobile from "@/lib/hooks/useIsMobile";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 
 // Configure dayjs
 dayjs.extend(localizedFormat);
@@ -73,6 +74,7 @@ const Appointments = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dayColumnWidth, setDayColumnWidth] = useState(200);
+  const [actionMenuOpen, setActionMenuOpen] = useState(false);
 
   // Refs for scroll synchronization
   const headerRef = useRef<HTMLElement | null>(null);
@@ -414,7 +416,6 @@ const Appointments = () => {
   }, [selectedAppt, appointments]);
 
   // Create new appointment from a specific day/time slot
-  // Create new appointment from a specific day/time slot
   const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
     // Set initial values for a new appointment
     setModalInitialValues({
@@ -427,6 +428,13 @@ const Appointments = () => {
     setIsAddApptModalOpen(true);
   };
 
+  // Handle event selection for mobile
+  const handleEventSelection = (event: EventWithId) => {
+    setSelectedAppt(event.id);
+    if (isMobile) {
+      setActionMenuOpen(true);
+    }
+  };
 
   // Current date formatter
   const formatCurrentDate = () => {
@@ -476,6 +484,74 @@ const Appointments = () => {
           setIsDeleteApptModalOpen(false);
         }}
       />
+
+      {/* Mobile Action Menu */}
+
+      <Drawer open={actionMenuOpen} onClose={() => setActionMenuOpen(false)} direction="bottom">
+        <DrawerContent>
+          <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto my-3"></div>
+
+          <div className="p-4">
+            <h3 className="text-lg font-medium mb-4">Opciones de turno</h3>
+
+            <div className="space-y-3">
+              <button
+                className="w-full py-3 flex items-center justify-center rounded-lg bg-gray-100 text-gray-800"
+                onClick={() => {
+                  setActionMenuOpen(false);
+                  setIsAddApptModalOpen(true);
+                }}
+              >
+                <FiEdit className="mr-2" />
+                Editar turno
+              </button>
+
+              <button
+                className="w-full py-3 flex items-center justify-center rounded-lg bg-gray-100 text-gray-800"
+                onClick={() => {
+                  // Handle move to next week
+                  handleMoveToWeekEvent(selectedAppt, 'next');
+                  setActionMenuOpen(false);
+                }}
+              >
+                <PiArrowArcRightBold className="mr-2" />
+                Mover a próxima semana
+              </button>
+
+              <button
+                className="w-full py-3 flex items-center justify-center rounded-lg bg-gray-100 text-gray-800"
+                onClick={() => {
+                  // Handle move to previous week
+                  handleMoveToWeekEvent(selectedAppt, 'prev');
+                  setActionMenuOpen(false);
+                }}
+              >
+                <PiArrowArcLeftBold className="mr-2" />
+                Mover a semana anterior
+              </button>
+
+              <button
+                className="w-full py-3 flex items-center justify-center rounded-lg bg-red-100 text-red-800"
+                onClick={() => {
+                  setIsDeleteApptModalOpen(true);
+                  setActionMenuOpen(false);
+                }}
+              >
+                <FaTrash className="mr-2" />
+                Eliminar turno
+              </button>
+            </div>
+
+            <button
+              className="w-full mt-4 py-3 rounded-lg bg-gray-200 font-medium"
+              onClick={() => setActionMenuOpen(false)}
+            >
+              Cancelar
+            </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
 
       {/* Top Actions Bar */}
       <div className="flex justify-between items-center mb-2">
@@ -569,6 +645,7 @@ const Appointments = () => {
               ))}
             </div>
 
+            {/* Zoom controls removed from here */}
           </div>
         </div>
       </div>
@@ -628,8 +705,8 @@ const Appointments = () => {
           onNavigate={(date) => setCurrentDate(date)}
           view={calendarView}
           views={['day', 'week', 'month', 'agenda']}
-          step={15}
-          timeslots={4}
+          step={isMobile ? 30 : 15}
+          timeslots={isMobile ? 2 : 4}
           selectable={true}
           onSelectSlot={handleSelectSlot}
           components={{
@@ -645,29 +722,24 @@ const Appointments = () => {
                   setSelectedAppt(id);
                   setIsAddApptModalOpen(true);
                 }}
+                isMobile={isMobile}
+                onMobileSelect={() => handleEventSelection(props.event as EventWithId)}
               />
             ),
             // Hide the default toolbar since we're using our custom one
             toolbar: () => null,
           }}
           onView={handleViewChange}
-          {...(isMobile ?
-            {
-              onSelectEvent: (event) => {
-                setIsAddApptModalOpen(true);
-                setSelectedAppt((event as EventWithId).id);
-              }
-            } :
-            {
-              onDoubleClickEvent: (event) => {
-                setIsAddApptModalOpen(true);
-                setSelectedAppt((event as EventWithId).id);
-              }
-            })}
           onEventDrop={handleEventDrop}
           onEventResize={(e) => {
-            console.log("Event resized:", e);
-            // Could implement resizing logic here
+            // Handle event resize
+            const originalApptId = (e.event as EventWithId).id.split("_")[0];
+            fetchData(`/appointments/${originalApptId}`, "PATCH", {
+              duration: dayjs(e.end).diff(dayjs(e.start), "minute"),
+            }).then(() => {
+              getAppts();
+              toast.success("Duración del turno actualizada");
+            });
           }}
           onRangeChange={handleRangeChange}
           className="w-full h-full"
@@ -719,8 +791,8 @@ const Appointments = () => {
               onClick={handleZoomOut}
               className="zoom-button-corner mr-2"
               disabled={dayColumnWidth <= MIN_WIDTH}
-              iconStart={<BsDash className="text-black" />}
             >
+              <BsDash />
             </Button>
             <div className="flex items-center justify-center text-sm min-w-[40px] text-center">
               {Math.round(dayColumnWidth <= 200 ? (dayColumnWidth - 125) / (200 - 125) * 50 + 50 : (dayColumnWidth - 200) / (200 - 125) * 50 + 100)}
@@ -730,10 +802,8 @@ const Appointments = () => {
               onClick={handleZoomIn}
               className="zoom-button-corner ml-2"
               disabled={dayColumnWidth >= MAX_WIDTH}
-              iconEnd={
-                <BsPlus />
-              }
             >
+              <BsPlus />
             </Button>
           </div>
         )}
@@ -749,10 +819,18 @@ type CustomEventProps = {
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
   event: Event;
+  isMobile?: boolean;
+  onMobileSelect?: () => void;
 };
 
-const CustomEvent = ({ event, onMoveToWeek, onDelete, onEdit }: CustomEventProps) => {
-  const isMobile = useIsMobile();
+const CustomEvent = ({
+  event,
+  onMoveToWeek,
+  onDelete,
+  onEdit,
+  isMobile,
+  onMobileSelect
+}: CustomEventProps) => {
   const backgroundColor = event.resource.professional.colorHex;
   const isCancelled = event.resource.status === 'cancelled';
 
@@ -772,11 +850,20 @@ const CustomEvent = ({ event, onMoveToWeek, onDelete, onEdit }: CustomEventProps
     }
   };
 
+  // Handle tap on mobile
+  const handleClick = (e: React.MouseEvent) => {
+    if (isMobile && onMobileSelect) {
+      e.stopPropagation();
+      onMobileSelect();
+    }
+  };
+
   return (
     <div
       className={`custom-event-container text-black px-2 pt-1 ${isCancelled ? 'line-through opacity-60' : ''}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
       style={{ borderWidth: '1px', borderColor: `${backgroundColor}` }}
     >
       <div className="rbc-addons-dnd-resizable">
@@ -786,7 +873,7 @@ const CustomEvent = ({ event, onMoveToWeek, onDelete, onEdit }: CustomEventProps
             {dayjs(event.start).format("HH:mm")} – {dayjs(event.end).format("HH:mm")}
           </div>}
 
-          {/* Controls (always visible on mobile, visible on hover for desktop) */}
+          {/* Controls (visible on hover for desktop) */}
           {(!isMobile && showControls) && (
             <div className="flex w-full justify-end items-center">
               <div className="flex w-full justify-end items-center gap-1 pr-1">
@@ -837,5 +924,5 @@ const CustomEvent = ({ event, onMoveToWeek, onDelete, onEdit }: CustomEventProps
         </div>
       </div>
     </div>
-  );
+  )
 };

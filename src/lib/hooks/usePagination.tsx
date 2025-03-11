@@ -14,6 +14,7 @@ const usePagination = (
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const fetchPageData = async () => {
+    console.log('fetching')
     setLoading(true);
     setError(null);
     try {

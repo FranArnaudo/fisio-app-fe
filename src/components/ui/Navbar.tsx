@@ -35,15 +35,15 @@ const Navbar = () => {
       if (showUserDropdown && !(event.target as Element).closest('#user-menu-container')) {
         setShowUserDropdown(false);
       }
-      
+
       // Close mobile menu when clicking outside
       if (isMobile && isOpen && !(event.target as Element).closest('#mobile-nav') && !(event.target as Element).closest('#mobile-nav-toggle')) {
         setIsOpen(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
-    
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -65,7 +65,7 @@ const Navbar = () => {
     { to: "/", text: "Inicio", Icon: Home },
     { to: "/pacientes", text: "Pacientes", Icon: User },
     { to: "/turnos", text: "Turnos", Icon: Calendar },
-    { to: "/ordenes", text: "Órdenes", Icon: FileText },
+    { to: "/servicios", text: "Servicios", Icon: FileText },
     { to: "/obras-sociales", text: "Obras Sociales", Icon: Building2 },
     { to: "/areas", text: "Áreas", Icon: Map },
   ];
@@ -78,7 +78,7 @@ const Navbar = () => {
         <div className="flex items-center">
           <span className="font-bold text-xl text-primary dark:text-white">FisioApp</span>
         </div>
-        
+
         {/* Navigation Links */}
         <div className="flex items-center">
           {navLinks.map(({ to, text, Icon }) => (
@@ -86,10 +86,9 @@ const Navbar = () => {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `px-3 py-2 mx-1 flex items-center text-sm font-medium rounded-md transition-colors ${
-                  isActive
-                    ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-white"
-                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                `px-3 py-2 mx-1 flex items-center text-sm font-medium rounded-md transition-colors ${isActive
+                  ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                 }`
               }
             >
@@ -98,11 +97,11 @@ const Navbar = () => {
             </NavLink>
           ))}
         </div>
-        
+
         {/* User and Theme Controls */}
         <div className="flex items-center gap-1 relative" id="user-menu-container">
-          
-          <div 
+
+          <div
             className="flex items-center ml-2 cursor-pointer p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
             onClick={() => setShowUserDropdown(!showUserDropdown)}
           >
@@ -120,11 +119,11 @@ const Navbar = () => {
               <CiUser className="h-6 w-6 text-gray-700 dark:text-gray-300" />
             )}
           </div>
-          
+
           {/* User dropdown menu */}
           <AnimatePresence>
             {showUserDropdown && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -139,13 +138,13 @@ const Navbar = () => {
                     {user?.email}
                   </p>
                 </div>
-                
+
                 <a href="#" className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                   <Settings className="h-4 w-4 mr-2 text-gray-500" />
                   Configuración
                 </a>
-                
-                <button 
+
+                <button
                   onClick={handleLogout}
                   className="flex w-full items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
@@ -174,8 +173,8 @@ const Navbar = () => {
 
         <div className="flex items-center">
           <ThemeSwitch />
-          
-          <div 
+
+          <div
             className="flex items-center ml-1 p-1"
             onClick={() => setShowUserDropdown(!showUserDropdown)}
           >
@@ -193,7 +192,7 @@ const Navbar = () => {
       {/* Mobile Navigation Drawer */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
+          <motion.div
             id="mobile-nav"
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
@@ -202,14 +201,14 @@ const Navbar = () => {
             className="fixed inset-0 z-50 flex sm:hidden"
           >
             {/* Semi-transparent backdrop */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.5 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-black"
               onClick={() => setIsOpen(false)}
             />
-            
+
             {/* Drawer content */}
             <div className="relative w-4/5 max-w-sm bg-white dark:bg-gray-800 h-full shadow-xl flex flex-col overflow-y-auto">
               <div className="p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
@@ -222,7 +221,7 @@ const Navbar = () => {
                   <IoMdClose className="h-6 w-6 text-gray-700 dark:text-gray-300" />
                 </Button>
               </div>
-              
+
               {/* User profile section */}
               {user && (
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -241,7 +240,7 @@ const Navbar = () => {
                   </div>
                 </div>
               )}
-              
+
               {/* Navigation links */}
               <div className="py-2 flex-1">
                 {navLinks.map(({ to, text, Icon }) => (
@@ -249,10 +248,9 @@ const Navbar = () => {
                     key={to}
                     to={to}
                     className={({ isActive }) =>
-                      `px-4 py-3 mx-2 my-1 flex items-center text-sm font-medium rounded-md ${
-                        isActive
-                          ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-white"
-                          : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                      `px-4 py-3 mx-2 my-1 flex items-center text-sm font-medium rounded-md ${isActive
+                        ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-white"
+                        : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                       }`
                     }
                   >
@@ -261,7 +259,7 @@ const Navbar = () => {
                   </NavLink>
                 ))}
               </div>
-              
+
               {/* Bottom actions */}
               <div className="mt-auto p-4 border-t border-gray-200 dark:border-gray-700">
                 <Button

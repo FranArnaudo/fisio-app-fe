@@ -8,6 +8,7 @@ export type Option<T> = {
 /* Patient related types */
 export type Patient = {
   id: string;
+  dni:string;
   firstname: string;
   lastname: string;
   email: string;
@@ -95,3 +96,25 @@ export type Order = {
   createdAt: Date;
   expiresAt?: Date;
 }
+// Add this to your src/types.ts file
+
+export type Service = {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  area?: {
+    id: string;
+    name: string;
+    active?: boolean;
+  };
+  coverages?: Array<{
+    id: string;
+    healthcare: {
+      id: string;
+      name: string;
+    };
+    amount: number;
+    copay: number;
+  }>;
+};

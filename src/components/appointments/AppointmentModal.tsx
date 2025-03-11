@@ -113,6 +113,7 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
       "GET"
     );
     const patientsResponse = await fetchData("/patients/dropdown", "GET");
+    console.log("🚀 ~ getDropdownData ~ patientsResponse:", patientsResponse)
     setPatients(patientsResponse);
     setProfessionals(proffesionalsResponse);
     // eslint-disable-next-line react-hooks/exhaustive-deps

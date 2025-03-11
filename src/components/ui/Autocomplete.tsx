@@ -12,6 +12,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
   onChange,
   ...props
 }) => {
+  console.log(options.find(op => op.id === props.value)?.text, options)
   const [inputValue, setInputValue] = useState(options.find(op => op.id === props.value)?.text);
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
