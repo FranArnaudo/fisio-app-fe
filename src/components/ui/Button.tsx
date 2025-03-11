@@ -16,7 +16,7 @@ const buttonVariants = cva(
         secondary: "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50",
 
         // Ghost button - transparent background, hover effect
-        ghost: "bg-transparent hover:bg-gray-100 text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800",
+        ghost: "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800",
 
         // Outline button - transparent with colored border
         outline: "bg-transparent border border-solid border-primary text-primary hover:bg-primary hover:text-white ",

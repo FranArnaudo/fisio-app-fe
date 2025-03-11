@@ -26,7 +26,7 @@ import {
   FaChevronRight,
   FaCalendarCheck
 } from "react-icons/fa";
-import { FiEdit } from "react-icons/fi";
+import { FiCopy, FiEdit, FiMove } from "react-icons/fi";
 import AppointmentModal from "@/components/appointments/AppointmentModal";
 import DeleteAppointmentModal from "@/components/appointments/DeleteAppointmentModal";
 import useIsMobile from "@/lib/hooks/useIsMobile";
@@ -63,9 +63,10 @@ const Appointments = () => {
   const { fetchData, loading: isLoading } = useFetch();
   const [isAddApptModalOpen, setIsAddApptModalOpen] = useState(false);
   const [isDeleteApptModalOpen, setIsDeleteApptModalOpen] = useState(false);
-  const [selectedAppt, setSelectedAppt] = useState('');
+  const [selectedAppt, setSelectedAppt] = useState<null | Event['resource']>(null);
   const isMobile = useIsMobile();
   const [calendarView, setCalendarView] = useState<View>(isMobile ? "day" : "week");
+  const [duplicationOrMoveStarted, setDuplicationOrMoveStarted] = useState<'move' | 'duplicate' | null>(null)
   const [currentDate, setCurrentDate] = useState(today);
   const [droppedEvent, setDroppedEvent] = useState<EventInteractionArgs<EventWithId>>();
   const [modalInitialValues, setModalInitialValues] = useState({});
@@ -312,11 +313,11 @@ const Appointments = () => {
     if (!selectedAppt) return;
 
     try {
-      await fetchData(`/appointments/${selectedAppt}`, "DELETE");
+      await fetchData(`/appointments/${selectedAppt.id}`, "DELETE");
       setIsDeleteApptModalOpen(false);
       await getAppts();
       toast.success("Turno eliminado con éxito");
-      setSelectedAppt('');
+      setSelectedAppt(null);
     } catch (err) {
       console.error("Error deleting event:", err);
       toast.error("Error al eliminar el turno. Intente nuevamente.");
@@ -397,40 +398,65 @@ const Appointments = () => {
 
   // Get initial values for selected appointment
   const selectedApptInitialValues = useMemo(() => {
-    if (selectedAppt === "") return {};
+    if (!selectedAppt) return {};
 
-    const appt = appointments.find(ap => ap.id === selectedAppt)?.resource;
-    if (!appt) return {};
+
 
     return {
-      appointmentDatetime: dayjs(appt.appointmentDatetime).format("YYYY-MM-DDTHH:mm"),
-      status: appt.status,
-      duration: appt.duration,
-      professional: appt.professional.id,
-      patient: appt.patient.id,
+      appointmentDatetime: dayjs(selectedAppt.appointmentDatetime).format("YYYY-MM-DDTHH:mm"),
+      status: selectedAppt.status,
+      duration: selectedAppt.duration,
+      professional: selectedAppt.professional.id,
+      patient: selectedAppt.patient.id,
       patientFirstname: "",
       patientLastname: "",
       patientPhone: "",
-      notes: appt.notes,
+      notes: selectedAppt.notes,
     };
   }, [selectedAppt, appointments]);
 
   // Create new appointment from a specific day/time slot
-  const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
-    // Set initial values for a new appointment
-    setModalInitialValues({
-      appointmentDatetime: dayjs(slotInfo.start).format("YYYY-MM-DDTHH:mm"),
-      duration: dayjs(slotInfo.end).diff(dayjs(slotInfo.start), "minute")
-    });
-    // Clear any previous selection (ensuring a new appointment)
-    setSelectedAppt('');
-    // Open the modal with the new initial values
-    setIsAddApptModalOpen(true);
+  const handleSelectSlot = async (slotInfo: { start: Date; end: Date }) => {
+    console.log('aaaa')
+    if (!duplicationOrMoveStarted) {
+
+      // Set initial values for a new appointment
+      setModalInitialValues({
+        appointmentDatetime: dayjs(slotInfo.start).format("YYYY-MM-DDTHH:mm"),
+        duration: dayjs(slotInfo.end).diff(dayjs(slotInfo.start), "minute")
+      });
+      // Clear any previous selection (ensuring a new appointment)
+      setSelectedAppt(null);
+      // Open the modal with the new initial values
+      setIsAddApptModalOpen(true);
+    } else {
+      const foundappt = { ...selectedAppt }
+
+      foundappt.patient = foundappt.patient.id,
+        foundappt.professional = foundappt.professional.id
+      foundappt.createdBy = foundappt.createdBy.id
+      if (duplicationOrMoveStarted === "duplicate") {
+        delete foundappt.id
+        await fetchData("/appointments", "POST", {
+          ...foundappt,
+          appointmentDatetime: dayjs(slotInfo.start).format("YYYY-MM-DDTHH:mm")
+        });
+      } else {
+        await fetchData(`/appointments/${selectedAppt.id}`, "PATCH", {
+          ...foundappt,
+          appointmentDatetime: dayjs(slotInfo.start).format("YYYY-MM-DDTHH:mm")
+        });
+      }
+      getAppts()
+      setSelectedAppt(null)
+      setDuplicationOrMoveStarted(null)
+    }
+
   };
 
   // Handle event selection for mobile
   const handleEventSelection = (event: EventWithId) => {
-    setSelectedAppt(event.id);
+    setSelectedAppt(event.resource);
     if (isMobile) {
       setActionMenuOpen(true);
     }
@@ -468,7 +494,7 @@ const Appointments = () => {
         refetchData={getAppts}
         open={isAddApptModalOpen}
         onClose={() => {
-          setSelectedAppt('');
+          setSelectedAppt(null);
           setIsAddApptModalOpen(false);
           setModalInitialValues({})
         }}
@@ -480,7 +506,7 @@ const Appointments = () => {
         open={isDeleteApptModalOpen}
         onDelete={handleDeleteEvent}
         onClose={() => {
-          setSelectedAppt('');
+          setSelectedAppt(null);
           setIsDeleteApptModalOpen(false);
         }}
       />
@@ -495,59 +521,97 @@ const Appointments = () => {
             <h3 className="text-lg font-medium mb-4">Opciones de turno</h3>
 
             <div className="space-y-3">
-              <button
-                className="w-full py-3 flex items-center justify-center rounded-lg bg-gray-100 text-gray-800"
+              <Button
+                variant='ghost'
+                size="lg"
+                fullWidth
                 onClick={() => {
                   setActionMenuOpen(false);
                   setIsAddApptModalOpen(true);
                 }}
+                iconStart={<FiEdit />}
               >
-                <FiEdit className="mr-2" />
-                Editar turno
-              </button>
 
-              <button
-                className="w-full py-3 flex items-center justify-center rounded-lg bg-gray-100 text-gray-800"
+                Editar turno
+              </Button>
+              <Button
+                variant='ghost'
+                size="lg"
+                fullWidth
+                onClick={() => {
+                  setDuplicationOrMoveStarted('duplicate')
+                  setActionMenuOpen(false);
+                }}
+                iconStart={<FiCopy />}
+              >
+
+                Duplicar turno
+              </Button>
+              <Button
+                variant='ghost'
+                size="lg"
+                fullWidth
+                onClick={() => {
+                  setDuplicationOrMoveStarted('move')
+                  setActionMenuOpen(false);
+                }}
+                iconStart={<FiMove />}
+              >
+
+                Mover turno
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                fullWidth
                 onClick={() => {
                   // Handle move to next week
-                  handleMoveToWeekEvent(selectedAppt, 'next');
+                  handleMoveToWeekEvent(selectedAppt.id, 'next');
                   setActionMenuOpen(false);
                 }}
+                iconStart={<PiArrowArcRightBold />}
               >
-                <PiArrowArcRightBold className="mr-2" />
-                Mover a próxima semana
-              </button>
 
-              <button
-                className="w-full py-3 flex items-center justify-center rounded-lg bg-gray-100 text-gray-800"
+                Mover a próxima semana
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="lg"
+                fullWidth
                 onClick={() => {
                   // Handle move to previous week
-                  handleMoveToWeekEvent(selectedAppt, 'prev');
+                  handleMoveToWeekEvent(selectedAppt.id, 'prev');
                   setActionMenuOpen(false);
                 }}
+                iconStart={<PiArrowArcLeftBold />}
               >
-                <PiArrowArcLeftBold className="mr-2" />
-                Mover a semana anterior
-              </button>
 
-              <button
-                className="w-full py-3 flex items-center justify-center rounded-lg bg-red-100 text-red-800"
+                Mover a semana anterior
+              </Button>
+
+              <Button
+                variant='destructive-outline'
+                size='lg'
+                fullWidth
                 onClick={() => {
                   setIsDeleteApptModalOpen(true);
                   setActionMenuOpen(false);
                 }}
+                iconStart={<FaTrash />}
               >
-                <FaTrash className="mr-2" />
                 Eliminar turno
-              </button>
+              </Button>
             </div>
 
-            <button
-              className="w-full mt-4 py-3 rounded-lg bg-gray-200 font-medium"
+            <Button
+              variant='secondary'
+              size='lg'
+              fullWidth
               onClick={() => setActionMenuOpen(false)}
             >
               Cancelar
-            </button>
+            </Button>
           </div>
         </DrawerContent>
       </Drawer>
@@ -645,9 +709,12 @@ const Appointments = () => {
               ))}
             </div>
 
-            {/* Zoom controls removed from here */}
           </div>
         </div>
+        {duplicationOrMoveStarted && <Button className="block md:hidden" onClick={() => {
+          setSelectedAppt(null)
+          setDuplicationOrMoveStarted(null)
+        }} variant='destructive'>Finalizar duplicar / mover</Button>}
       </div>
 
       {/* Move/Duplicate Option Modal */}
@@ -714,12 +781,12 @@ const Appointments = () => {
               <CustomEvent
                 {...props}
                 onMoveToWeek={handleMoveToWeekEvent}
-                onDelete={(id: string) => {
-                  setSelectedAppt(id);
+                onDelete={(appointment: Event['resource']) => {
+                  setSelectedAppt(appointment);
                   setIsDeleteApptModalOpen(true);
                 }}
-                onEdit={(id: string) => {
-                  setSelectedAppt(id);
+                onEdit={(appointment: Event['resource']) => {
+                  setSelectedAppt(appointment);
                   setIsAddApptModalOpen(true);
                 }}
                 isMobile={isMobile}
@@ -816,8 +883,8 @@ export default Appointments;
 
 type CustomEventProps = {
   onMoveToWeek: (id: string, to: 'prev' | 'next') => void;
-  onDelete: (id: string) => void;
-  onEdit: (id: string) => void;
+  onDelete: (event: Event['resource']) => void;
+  onEdit: (event: Event['resource']) => void;
   event: Event;
   isMobile?: boolean;
   onMobileSelect?: () => void;
@@ -898,14 +965,14 @@ const CustomEvent = ({
                   className="hover:bg-black/50 p-1 rounded cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onEdit((event as EventWithId).id);
+                    onEdit((event as EventWithId).resource);
                   }}
                 />
                 <FaTrash
                   size="20"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onDelete((event as EventWithId).id);
+                    onDelete((event as EventWithId).resource);
                   }}
                   className="hover:text-red-500 p-1 rounded cursor-pointer"
                 />
