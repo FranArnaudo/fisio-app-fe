@@ -14,11 +14,13 @@ import {
   Building2,
   LogOut,
   ChevronDown,
-  Settings
+  Settings,
+  Group
 } from "lucide-react";
 import Button from "./Button";
 import useIsMobile from "@/lib/hooks/useIsMobile";
 import { motion, AnimatePresence } from "framer-motion";
+import { BsPeople } from "react-icons/bs";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -68,6 +70,7 @@ const Navbar = () => {
     { to: "/servicios", text: "Servicios", Icon: FileText },
     { to: "/obras-sociales", text: "Obras Sociales", Icon: Building2 },
     { to: "/areas", text: "Áreas", Icon: Map },
+    { to: "/profesionales", text: "Profesionales", Icon: BsPeople }
   ];
 
   return (
@@ -172,7 +175,6 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center">
-          <ThemeSwitch />
 
           <div
             className="flex items-center ml-1 p-1"

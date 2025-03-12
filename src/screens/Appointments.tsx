@@ -93,7 +93,7 @@ const Appointments = () => {
     setDayColumnWidth(prev => Math.max(prev - WIDTH_STEP, MIN_WIDTH));
   };
 
-  // Set up scroll synchronization
+  // Inside your useEffect for scroll synchronization
   useEffect(() => {
     // Function to set up scroll synchronization
     const setupScrollSync = () => {
@@ -106,6 +106,12 @@ const Appointments = () => {
       }
 
       if (headerRef.current && contentRef.current) {
+        // Make scrollbars visible on horizontal axis only
+        if (contentRef.current.style) {
+          contentRef.current.style.overflowY = 'hidden';
+          contentRef.current.style.overflowX = 'auto';
+        }
+
         // Set up event listeners for scroll synchronization
         const handleContentScroll = () => {
           if (contentRef.current && headerRef.current) {
@@ -145,7 +151,7 @@ const Appointments = () => {
     }, 100);
 
     return () => clearTimeout(timeoutId);
-  }, [calendarView]); // Only re-run when view changes
+  }, [calendarView]);
 
   // Inject custom CSS for day width control
   useEffect(() => {

@@ -43,6 +43,8 @@ export type Professional = {
   lastname: string;
   phone: string;
   email: string;
+  colorHex: string;
+  area:Area
 };
 
 export type Appointment = {
@@ -118,3 +120,8 @@ export type Service = {
     copay: number;
   }>;
 };
+
+export type WithPagination<T> = {
+  data: T,
+  total:number
+}

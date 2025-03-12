@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-const usePagination = (
+const usePagination = <T = any>(
   fetchData: <T>(params: any) => Promise<{ data: T[]; total: number }>
 ) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); // Default items per page
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Record<string, any>>({});
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<T[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +18,7 @@ const usePagination = (
     setLoading(true);
     setError(null);
     try {
-      const response = await fetchData({
+      const response = await fetchData<T>({
         page: currentPage,
         limit: itemsPerPage,
         search: searchQuery,

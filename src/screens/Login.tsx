@@ -1,4 +1,5 @@
 import Button from "@/components/ui/Button";
+import Checkbox from "@/components/ui/Checkbox";
 import TextInput from "@/components/ui/TextInput";
 import useFetch from "@/lib/hooks/useFetch";
 import useJwt from "@/lib/hooks/useJwt";
@@ -17,6 +18,7 @@ function Login({ setUser }: LoginProps) {
     initialValues: {
       username: "",
       password: "",
+      remember: false
     },
     onSubmit: async (values) => {
       const returnData = await fetchData("/auth/login", "POST", values, false);
@@ -50,6 +52,7 @@ function Login({ setUser }: LoginProps) {
           </label>
           <TextInput
             type="text"
+            autoComplete="username"
             placeholder="Usuario"
             name="username"
             onChange={formik.handleChange}
@@ -63,6 +66,7 @@ function Login({ setUser }: LoginProps) {
           </label>
           <TextInput
             type="password"
+            autoComplete="password"
             placeholder="••••••••"
             name="password"
             onChange={formik.handleChange}
@@ -71,13 +75,12 @@ function Login({ setUser }: LoginProps) {
         </div>
 
         <div className="flex items-center justify-between mb-6">
-          <label className="flex items-center text-sm text-gray-700 dark:text-gray-300">
-            <input
-              type="checkbox"
-              className="form-checkbox h-4 w-4 text-primary border-gray-300 rounded mr-2"
-            />
-            Recuérdame
-          </label>
+          <Checkbox
+            label="Recuérdame"
+            name="remember"
+            onChange={formik.handleChange}
+            value={formik.values.remember}
+          />
           <a href="#" className="text-sm text-primary hover:underline">
             ¿Olvidaste tu contraseña?
           </a>
