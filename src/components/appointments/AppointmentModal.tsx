@@ -7,7 +7,6 @@ import { Option } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import Modal from "../ui/Modal";
 import Button from "../ui/Button";
-import TextArea from "../ui/TextArea";
 import { toast } from "react-toastify";
 import Autocomplete from "../ui/Autocomplete";
 import { jwtDecode } from "jwt-decode";

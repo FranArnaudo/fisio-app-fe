@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { BsPlus } from "react-icons/bs";
-import { Building2, Tag, MapPin, CreditCard, ArrowUpDown } from "lucide-react";
+import { Tag, MapPin, CreditCard } from "lucide-react";
 import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
 import Pagination from "@/components/ui/Pagination";

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { OrderCardsGrid } from '@/components/orders/OrdersShortCard';
-import { FileText, Plus, X, Calendar, Tag, CreditCard, Clock, FileUp } from 'lucide-react';
+import { FileText, Plus, X, Tag, CreditCard, Clock } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import TextInput from '@/components/ui/TextInput';
 import TextArea from '@/components/ui/TextArea';
 import Select from '@/components/ui/Select';
-import { Healthcare, Order, Service } from '@/types';
+import { Order } from '@/types';
 import useFetch from '@/lib/hooks/useFetch';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';

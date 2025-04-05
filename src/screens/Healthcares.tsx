@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { BsPlus, BsSearch } from "react-icons/bs";
-import { Calendar, Filter, Clock, Check, FileText } from "lucide-react";
+import { Calendar, Clock, Check, FileText } from "lucide-react";
 import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
 import HealthcaresTable from "@/components/healthcares/HealthcaresTable";

@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { BsPlus, BsSearch } from "react-icons/bs";
+import { BsSearch } from "react-icons/bs";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Button from "@/components/ui/Button";
@@ -7,7 +7,7 @@ import TextInput from "@/components/ui/TextInput";
 import Pagination from "@/components/ui/Pagination";
 import useFetch from "@/lib/hooks/useFetch";
 import usePagination from "@/lib/hooks/usePagination";
-import { PaginationParams, Professional, Appointment, Area, WithPagination } from "@/types";
+import { PaginationParams, Professional, Appointment } from "@/types";
 import { Users, UserCircle, Briefcase, FileText, Calendar, Phone, Mail } from "lucide-react";
 import { AppointmentCardsGrid } from "@/components/appointments/AppointmentShortCard";
 import { AddProfessionalModal } from "@/components/professionals/AddProfessionalModal";

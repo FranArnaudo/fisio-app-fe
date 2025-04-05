@@ -1,4 +1,4 @@
-# Stage 1: Build the production assets using Node.js
+# Stage 1: Build the production assets
 FROM node:18-alpine AS build
 
 WORKDIR /app
@@ -7,13 +7,11 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Set the API URL for build time (this value is baked into your build)
-ENV VITE_API_URL="http://www.axis.fisioapp.com.ar:8080"
-
 # Copy the rest of the application code
 COPY . .
 
-# Build the app (outputs static assets in, e.g., the "dist" folder)
+# Build the app (outputs static assets in the "dist" folder)
+# Note: We're not setting VITE_API_URL here anymore
 RUN npm run build
 
 # Stage 2: Serve the static assets with Nginx
@@ -25,8 +23,12 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Copy the custom Nginx config to handle SPA routing
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Copy our entrypoint script
+COPY docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
+
 # Expose port 80 for HTTP traffic
 EXPOSE 80
 
-# Start Nginx in the foreground
-CMD ["nginx", "-g", "daemon off;"]
+# Use our custom entrypoint script
+ENTRYPOINT ["/bin/sh", "/docker-entrypoint.sh"]

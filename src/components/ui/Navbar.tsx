@@ -1,6 +1,5 @@
 import { useState, useContext, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router";
-import ThemeSwitch from "./ThemeSwitch";
 import { AuthContext } from "@/contexts";
 import { IoMdClose } from "react-icons/io";
 import { CiUser } from "react-icons/ci";
@@ -14,8 +13,7 @@ import {
   Building2,
   LogOut,
   ChevronDown,
-  Settings,
-  Group
+  Settings
 } from "lucide-react";
 import Button from "./Button";
 import useIsMobile from "@/lib/hooks/useIsMobile";

@@ -1,16 +1,15 @@
 import PatientsTable from "@/components/patients/PatientsTable";
 import Button from "@/components/ui/Button";
-import { DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, DrawerClose, Drawer } from "@/components/ui/drawer";
+import { DrawerContent, DrawerHeader, DrawerTitle, DrawerClose, Drawer } from "@/components/ui/drawer";
 import Pagination from "@/components/ui/Pagination";
 import Select from "@/components/ui/Select";
 import TextInput from "@/components/ui/TextInput";
 import useFetch from "@/lib/hooks/useFetch";
-import useIsMobile from "@/lib/hooks/useIsMobile";
 import usePagination from "@/lib/hooks/usePagination";
 import { Appointment, Order, Patient, PaginationParams } from "@/types";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useState } from "react";
-import { BsSortAlphaDown, BsPlus } from "react-icons/bs";
+import { BsSortAlphaDown } from "react-icons/bs";
 import { X } from "lucide-react";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { AppointmentCardsGrid } from "@/components/appointments/AppointmentShortCard";
@@ -49,7 +48,6 @@ const Patients = () => {
     refetch
   } = usePagination(getPatientsWithPagination);
   let timeoutId: number | null = null;
-  const isMobile = useIsMobile()
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null)
   const [selectedPatientData, setSelectedPatientData] = useState<Patient | null>(null)
   const [patientApptsAndOrders, setPatientApptsAndOrders] = useState<{ appts: Appointment[], orders: Order[] }>({ appts: [], orders: [] })

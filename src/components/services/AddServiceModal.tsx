@@ -8,7 +8,7 @@ import { useFormik } from "formik";
 import useFetch from "@/lib/hooks/useFetch";
 import { toast } from "react-toastify";
 import Select from "../ui/Select";
-import { Area, Option } from "@/types";
+import { Option } from "@/types";
 
 type AddServiceModalProps = {
   refetch: () => void;
