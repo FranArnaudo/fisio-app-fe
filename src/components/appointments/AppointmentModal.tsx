@@ -2,6 +2,12 @@ import { useFormik } from "formik";
 import Select from "../ui/Select";
 import TextInput from "../ui/TextInput";
 import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('America/Argentina/Buenos_Aires');
 import useFetch from "@/lib/hooks/useFetch";
 import { Option } from "@/types";
 import { useCallback, useEffect, useState } from "react";
@@ -68,7 +74,7 @@ const AppointmentModal = ({ refetchData, open, initialValues = {}, onClose }: Ap
 
   const formik = useFormik({
     initialValues: {
-      appointmentDatetime: dayjs().format("YYYY-MM-DDTHH:mm"),
+      appointmentDatetime: dayjs().tz('America/Argentina/Buenos_Aires').format("YYYY-MM-DDTHH:mm"),
       status: "Programado",
       duration: 60,
       professional: "",
